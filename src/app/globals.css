@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+:root {
+  --background: #07111a;
+  --background-elevated: #0b1722;
+  --surface: #102032;
+  --surface-strong: #14283e;
+  --surface-muted: #0f1b29;
+  --stroke: rgba(139, 169, 205, 0.18);
+  --stroke-strong: rgba(139, 169, 205, 0.28);
+  --text-primary: #eef4ff;
+  --text-secondary: #97abc4;
+  --accent: #63b3ff;
+  --accent-secondary: #7fffd3;
+  --accent-warning: #ffd166;
+  --accent-danger: #ff7e8b;
+  --success: #6de8ba;
+  --shadow-color: rgba(0, 0, 0, 0.38);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--text-primary);
+  --font-sans: "Bahnschrift", "Aptos", "Segoe UI", sans-serif;
+  --font-mono: "Cascadia Code", "Consolas", monospace;
+}
+
+* {
+  border-color: var(--stroke);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(99, 179, 255, 0.18), transparent 36%),
+    radial-gradient(circle at 85% 15%, rgba(127, 255, 211, 0.12), transparent 24%),
+    linear-gradient(180deg, #08121b 0%, #07111a 52%, #09131f 100%);
+  color: var(--text-primary);
+  font-family: "Bahnschrift", "Aptos", "Segoe UI", sans-serif;
+}
+
+::selection {
+  background: rgba(99, 179, 255, 0.28);
+  color: var(--text-primary);
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.glass-panel {
+  background:
+    linear-gradient(180deg, rgba(18, 34, 52, 0.96) 0%, rgba(10, 22, 34, 0.96) 100%);
+  border: 1px solid var(--stroke);
+  box-shadow:
+    0 18px 60px -28px var(--shadow-color),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.subtle-grid {
+  background-image:
+    linear-gradient(rgba(99, 179, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 179, 255, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 179, 255, 0.28) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 9px;
+  width: 9px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(99, 179, 255, 0.28);
+  border-radius: 999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel-ring {
+  position: relative;
+}
+
+.panel-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 179, 255, 0.16),
+    rgba(127, 255, 211, 0.08)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
