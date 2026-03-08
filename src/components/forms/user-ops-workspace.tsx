@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useDeferredValue, useState } from "react";
 import { WatchlistForm } from "@/components/forms/watchlist-form";
 import { StatusPill } from "@/components/ui/status-pill";
@@ -21,6 +22,22 @@ export function UserOpsWorkspace({ users }: { users: UserSnapshot[] }) {
     : users;
   const selectedUser =
     filteredUsers.find((user) => user.id === selectedId) ?? filteredUsers[0] ?? users[0];
+
+  if (!users.length) {
+    return (
+      <div className="rounded-[28px] border border-white/8 bg-black/10 p-6 text-sm text-[var(--text-secondary)]">
+        Nenhum usuario foi carregado ainda. Conecte a fonte do produto em
+        <code className="mx-1 rounded bg-white/6 px-1.5 py-0.5 text-white">
+          PRODUCT_SUPABASE_URL
+        </code>
+        e
+        <code className="mx-1 rounded bg-white/6 px-1.5 py-0.5 text-white">
+          PRODUCT_SUPABASE_SERVICE_ROLE_KEY
+        </code>
+        para listar os usuarios reais do CodeTrail App.
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
@@ -84,6 +101,12 @@ export function UserOpsWorkspace({ users }: { users: UserSnapshot[] }) {
             <div className="flex flex-wrap gap-2">
               <StatusPill value={selectedUser.riskLevel} />
               <StatusPill value={selectedUser.supportStatus} />
+              <Link
+                href={`/users/${selectedUser.id}`}
+                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-white hover:bg-white/10"
+              >
+                Abrir detalhe
+              </Link>
             </div>
           </div>
 

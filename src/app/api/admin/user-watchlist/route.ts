@@ -1,9 +1,32 @@
 import { NextResponse } from "next/server";
+import { canEditOps, getAdminAccess } from "@/lib/auth";
+import { writeAuditLog } from "@/lib/admin-ops";
 import { getCommandCenterEnv } from "@/lib/env";
 import { watchlistPayloadSchema } from "@/lib/schemas";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
+  const access = await getAdminAccess();
+  if (!access?.profile) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "Sessao administrativa ausente ou expirada.",
+      },
+      { status: 401 },
+    );
+  }
+
+  if (!canEditOps(access.profile.role)) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "Seu papel atual nao permite editar a watchlist operacional.",
+      },
+      { status: 403 },
+    );
+  }
+
   const env = getCommandCenterEnv();
   const admin = createSupabaseAdminClient();
 
@@ -40,6 +63,7 @@ export async function POST(request: Request) {
       support_status: payload.supportStatus,
       internal_note: payload.internalNote,
       next_action_at: payload.nextActionAt ?? null,
+      updated_by: access.user.id,
       updated_at: now,
     },
     {
@@ -58,6 +82,18 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+
+  await writeAuditLog(admin, {
+    actorId: access.user.id,
+    action: "ops.watchlist.upsert",
+    entityType: "ops_user_watchlist",
+    entityId: payload.profileId,
+    summary: `Watchlist operacional atualizada para ${payload.profileId}.`,
+    metadata: {
+      riskLevel: payload.riskLevel,
+      supportStatus: payload.supportStatus,
+    },
+  });
 
   return NextResponse.json({ ok: true, savedAt: now });
 }

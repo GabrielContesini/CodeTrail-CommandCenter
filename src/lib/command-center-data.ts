@@ -1,13 +1,16 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { getCommandCenterEnv } from "@/lib/env";
-import { getMockCommandCenterSnapshot } from "@/lib/mock-data";
-import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import {
+  createProductSourceAdminClient,
+  createSupabaseAdminClient,
+} from "@/lib/supabase/server";
 import type {
   ActivityPoint,
   CommandCenterSnapshot,
   DatabaseMetric,
   FleetNode,
   IncidentSnapshot,
+  PlatformSnapshot,
+  ReleaseSnapshot,
   RiskLevel,
   SupportStatus,
   UserSnapshot,
@@ -85,6 +88,19 @@ type HeartbeatRow = {
   created_at: string;
 };
 
+type IncidentRow = {
+  id: string;
+  severity: IncidentSnapshot["severity"];
+  title: string;
+  source: string;
+  status: IncidentSnapshot["status"];
+  opened_at: string;
+  resolved_at: string | null;
+  summary: string;
+  suggested_action: string;
+  context: Record<string, unknown> | null;
+};
+
 type AuthUserRow = {
   id: string;
   email?: string;
@@ -127,6 +143,63 @@ const TABLE_DESCRIPTIONS: Array<{
     description: "Registros ainda aguardando envio ao Supabase.",
   },
 ];
+
+function getEmptyCommandCenterSnapshot(
+  generatedAt: string,
+  mode: CommandCenterSnapshot["mode"] = "empty",
+): CommandCenterSnapshot {
+  return {
+    mode,
+    generatedAt,
+    metrics: [
+      {
+        label: "Usuarios monitorados",
+        value: "0",
+        delta: "fonte do produto ainda sem leitura",
+        hint: "Conecte o banco do produto para listar usuarios reais.",
+        tone: "neutral",
+      },
+      {
+        label: "Pendencias de sync",
+        value: "0",
+        delta: "sem backlog observado",
+        hint: "A fila sera consolidada assim que a fonte do produto estiver conectada.",
+        tone: "neutral",
+      },
+      {
+        label: "Frota operacional",
+        value: "0/0",
+        delta: "sem agentes reportando heartbeat",
+        hint: "Windows e apps clientes aparecem aqui quando o heartbeat estiver ativo.",
+        tone: "neutral",
+      },
+      {
+        label: "Incidentes criticos",
+        value: "0",
+        delta: "nenhum incidente aberto",
+        hint: "Incidentes surgem a partir do banco operacional do Command Center.",
+        tone: "neutral",
+      },
+    ],
+    activity: groupActivity(null, null),
+    fleet: [],
+    platforms: [],
+    releases: [],
+    systems: [],
+    users: [],
+    database: deriveDatabaseMetrics(
+      {
+        profiles: 0,
+        study_sessions: 0,
+        tasks: 0,
+        reviews: 0,
+        study_notes: 0,
+        sync_queue: 0,
+      },
+    ),
+    incidents: [],
+  };
+}
 
 async function safeCount(
   client: ReturnType<typeof createSupabaseAdminClient>,
@@ -262,10 +335,9 @@ function deriveUsers(
   syncQueue: SyncQueueRow[] | null,
   watchlist: WatchlistRow[] | null,
   authUsers: AuthUserRow[] | null,
-  fallbackUsers: UserSnapshot[],
 ) {
   if (!profiles?.length) {
-    return fallbackUsers;
+    return [];
   }
 
   const tracksById = new Map((tracks ?? []).map((track) => [track.id, track.name]));
@@ -369,11 +441,10 @@ function deriveUsers(
 function deriveFleet(
   instances: InstanceRow[] | null,
   heartbeats: HeartbeatRow[] | null,
-  fallbackFleet: FleetNode[],
   activeUsers: number,
 ) {
   if (!instances?.length) {
-    return fallbackFleet;
+    return [];
   }
 
   const latestHeartbeatByInstance = new Map<string, HeartbeatRow>();
@@ -415,11 +486,10 @@ function deriveFleet(
 function deriveSystems(
   fleet: FleetNode[],
   heartbeats: HeartbeatRow[] | null,
-  fallbackSystems: CommandCenterSnapshot["systems"],
 ) {
   const windowsFleet = fleet.filter((node) => node.platform === "windows");
   if (!windowsFleet.length) {
-    return fallbackSystems;
+    return [];
   }
 
   const latestHeartbeatByInstance = new Map<string, HeartbeatRow>();
@@ -450,12 +520,100 @@ function deriveSystems(
   });
 }
 
+function derivePlatformSummaries(fleet: FleetNode[]) {
+  const summaries = new Map<string, PlatformSnapshot>();
+
+  for (const node of fleet) {
+    const current = summaries.get(node.platform) ?? {
+      platform: node.platform,
+      instances: 0,
+      uniqueVersions: 0,
+      activeUsers: 0,
+      pendingSync: 0,
+      degradedNodes: 0,
+      latestSeenAt: null,
+    };
+
+    current.instances += 1;
+    current.activeUsers += node.activeUsers;
+    current.pendingSync += node.pendingSync;
+    if (node.status !== "up") {
+      current.degradedNodes += 1;
+    }
+    if (!current.latestSeenAt || current.latestSeenAt < node.lastSeenAt) {
+      current.latestSeenAt = node.lastSeenAt;
+    }
+
+    summaries.set(node.platform, current);
+  }
+
+  const versionsByPlatform = new Map<string, Set<string>>();
+  for (const node of fleet) {
+    const current = versionsByPlatform.get(node.platform) ?? new Set<string>();
+    current.add(node.version);
+    versionsByPlatform.set(node.platform, current);
+  }
+
+  return Array.from(summaries.values())
+    .map((item) => ({
+      ...item,
+      uniqueVersions: versionsByPlatform.get(item.platform)?.size ?? 0,
+    }))
+    .sort((left, right) => right.instances - left.instances);
+}
+
+function deriveReleaseSummaries(fleet: FleetNode[]) {
+  const summaries = new Map<string, ReleaseSnapshot>();
+
+  for (const node of fleet) {
+    const key = `${node.platform}:${node.version}`;
+    const current = summaries.get(key) ?? {
+      id: key,
+      platform: node.platform,
+      version: node.version,
+      instances: 0,
+      activeUsers: 0,
+      pendingSync: 0,
+      health: "up" as const,
+      environments: [],
+      lastSeenAt: node.lastSeenAt,
+    };
+
+    current.instances += 1;
+    current.activeUsers += node.activeUsers;
+    current.pendingSync += node.pendingSync;
+    if (!current.environments.includes(node.environment)) {
+      current.environments.push(node.environment);
+    }
+    if (current.lastSeenAt < node.lastSeenAt) {
+      current.lastSeenAt = node.lastSeenAt;
+    }
+    if (node.status === "down") {
+      current.health = "down";
+    } else if (node.status === "degraded" && current.health !== "down") {
+      current.health = "degraded";
+    }
+
+    summaries.set(key, current);
+  }
+
+  return Array.from(summaries.values()).sort((left, right) => {
+    if (left.health !== right.health) {
+      const weight = { down: 3, degraded: 2, up: 1 };
+      return weight[right.health] - weight[left.health];
+    }
+    if (right.instances !== left.instances) {
+      return right.instances - left.instances;
+    }
+    return right.lastSeenAt.localeCompare(left.lastSeenAt);
+  });
+}
+
 function deriveIncidents(
   incidents: IncidentSnapshot[] | null,
   fleet: FleetNode[],
   pendingSync: number,
   users: UserSnapshot[],
-  fallbackIncidents: IncidentSnapshot[],
 ) {
   if (incidents?.length) {
     return incidents;
@@ -474,8 +632,10 @@ function deriveIncidents(
       source: "Fleet monitoring",
       status: "open",
       openedAt: new Date().toISOString(),
+      resolvedAt: null,
       summary: `${downNodes.length} instancia(s) estao sem heartbeat dentro da janela esperada.`,
       action: "Verificar conectividade, versao instalada e ultimo deploy da frota.",
+      context: {},
     });
   }
 
@@ -487,9 +647,11 @@ function deriveIncidents(
       source: "Sync pipeline",
       status: "investigating",
       openedAt: new Date().toISOString(),
+      resolvedAt: null,
       summary:
         "A fila de sincronizacao ou o status da frota exigem nova rodada de retries e observacao do Supabase.",
       action: "Abrir a tela de diagnostico, confirmar retries e checar os clientes com maior backlog.",
+      context: {},
     });
   }
 
@@ -501,17 +663,18 @@ function deriveIncidents(
       source: "User watchlist",
       status: "open",
       openedAt: new Date().toISOString(),
+      resolvedAt: null,
       summary: `${criticalUsers.length} usuario(s) exigem follow-up pela equipe.`,
       action: "Atualizar notas internas e definir a proxima acao ainda hoje.",
+      context: {},
     });
   }
 
-  return derived.length ? derived : fallbackIncidents;
+  return derived;
 }
 
 function deriveDatabaseMetrics(
   counts: Record<string, number | null>,
-  fallback: DatabaseMetric[],
 ) {
   const values = TABLE_DESCRIPTIONS.map<DatabaseMetric>((table) => ({
     tableName: table.tableName,
@@ -524,22 +687,18 @@ function deriveDatabaseMetrics(
         : "healthy",
   }));
 
-  if (values.every((item) => item.rowCount === 0)) {
-    return fallback;
-  }
-
   return values;
 }
 
 export async function getCommandCenterSnapshot(): Promise<CommandCenterSnapshot> {
   noStore();
 
-  const fallback = getMockCommandCenterSnapshot();
-  const env = getCommandCenterEnv();
-  const admin = createSupabaseAdminClient();
+  const opsAdmin = createSupabaseAdminClient();
+  const productAdmin = createProductSourceAdminClient();
+  const generatedAt = new Date().toISOString();
 
-  if (!env.hasAdmin || !admin) {
-    return fallback;
+  if (!opsAdmin && !productAdmin) {
+    return getEmptyCommandCenterSnapshot(generatedAt, "empty");
   }
 
   const sevenDaysAgo = startOfDay(new Date());
@@ -563,21 +722,21 @@ export async function getCommandCenterSnapshot(): Promise<CommandCenterSnapshot>
     incidents,
     authUsers,
   ] = await Promise.all([
-    safeCount(admin, "profiles"),
-    safeCount(admin, "study_sessions"),
-    safeCount(admin, "tasks"),
-    safeCount(admin, "reviews"),
-    safeCount(admin, "study_notes"),
-    safeCount(admin, "sync_queue"),
+    safeCount(productAdmin, "profiles"),
+    safeCount(productAdmin, "study_sessions"),
+    safeCount(productAdmin, "tasks"),
+    safeCount(productAdmin, "reviews"),
+    safeCount(productAdmin, "study_notes"),
+    safeCount(productAdmin, "sync_queue"),
     safeSelect<ProfileRow>(
-      admin,
+      productAdmin,
       "profiles",
       "id, full_name, email, desired_area, onboarding_completed, selected_track_id, updated_at",
       (query) => query.order("updated_at", { ascending: false }).limit(100),
     ),
-    safeSelect<TrackRow>(admin, "study_tracks", "id, name"),
+    safeSelect<TrackRow>(productAdmin, "study_tracks", "id, name"),
     safeSelect<SessionRow>(
-      admin,
+      productAdmin,
       "study_sessions",
       "user_id, start_time, duration_minutes",
       (query) =>
@@ -587,41 +746,32 @@ export async function getCommandCenterSnapshot(): Promise<CommandCenterSnapshot>
           .limit(1500),
     ),
     safeSelect<SyncQueueRow>(
-      admin,
+      productAdmin,
       "sync_queue",
       "user_id, attempts, last_error, created_at",
       (query) => query.order("created_at", { ascending: true }).limit(1500),
     ),
     safeSelect<WatchlistRow>(
-      admin,
+      opsAdmin,
       "ops_user_watchlist",
       "profile_id, risk_level, support_status, internal_note, next_action_at",
     ),
     safeSelect<InstanceRow>(
-      admin,
+      opsAdmin,
       "ops_app_instances",
       "id, external_id, platform, app_version, environment, device_label, machine_name, last_seen_at, status",
       (query) => query.order("last_seen_at", { ascending: false }).limit(50),
     ),
     safeSelect<HeartbeatRow>(
-      admin,
+      opsAdmin,
       "ops_heartbeats",
       "instance_id, sync_backlog, open_errors, cpu_percent, memory_percent, disk_percent, network_status, app_uptime_seconds, os_uptime_seconds, created_at",
       (query) => query.order("created_at", { ascending: false }).limit(200),
     ),
-    safeSelect<{
-      id: string;
-      severity: IncidentSnapshot["severity"];
-      title: string;
-      source: string;
-      status: IncidentSnapshot["status"];
-      opened_at: string;
-      summary: string;
-      suggested_action: string;
-    }>(
-      admin,
+    safeSelect<IncidentRow>(
+      opsAdmin,
       "ops_incidents",
-      "id, severity, title, source, status, opened_at, summary, suggested_action",
+      "id, severity, title, source, status, opened_at, resolved_at, summary, suggested_action, context",
       (query) => query.order("opened_at", { ascending: false }).limit(20),
     ).then((rows) =>
       rows?.map<IncidentSnapshot>((incident) => ({
@@ -631,11 +781,30 @@ export async function getCommandCenterSnapshot(): Promise<CommandCenterSnapshot>
         source: incident.source,
         status: incident.status,
         openedAt: incident.opened_at,
+        resolvedAt: incident.resolved_at,
         summary: incident.summary,
         action: incident.suggested_action,
+        context: {
+          profileId:
+            typeof incident.context?.profileId === "string"
+              ? incident.context.profileId
+              : null,
+          instanceId:
+            typeof incident.context?.instanceId === "string"
+              ? incident.context.instanceId
+              : null,
+          platform:
+            typeof incident.context?.platform === "string"
+              ? (incident.context.platform as FleetNode["platform"])
+              : null,
+          version:
+            typeof incident.context?.version === "string"
+              ? incident.context.version
+              : null,
+        },
       })) ?? null,
     ),
-    safeListAuthUsers(admin),
+    safeListAuthUsers(productAdmin),
   ]);
 
   const users = deriveUsers(
@@ -645,19 +814,17 @@ export async function getCommandCenterSnapshot(): Promise<CommandCenterSnapshot>
     syncQueue,
     watchlist,
     authUsers,
-    fallback.users,
   );
 
   const activeUsers = sessions?.length
     ? new Set(sessions.map((session) => session.user_id)).size
     : users.length;
 
-  const fleet = deriveFleet(instances, heartbeats, fallback.fleet, activeUsers);
-  const systems = deriveSystems(fleet, heartbeats, fallback.systems);
-  const pendingSync =
-    syncQueueCount ??
-    fallback.database.find((item) => item.tableName === "sync_queue")?.rowCount ??
-    0;
+  const fleet = deriveFleet(instances, heartbeats, activeUsers);
+  const platforms = derivePlatformSummaries(fleet);
+  const releases = deriveReleaseSummaries(fleet);
+  const systems = deriveSystems(fleet, heartbeats);
+  const pendingSync = syncQueueCount ?? 0;
   const activity = groupActivity(sessions, syncQueue);
   const database = deriveDatabaseMetrics(
     {
@@ -668,28 +835,40 @@ export async function getCommandCenterSnapshot(): Promise<CommandCenterSnapshot>
       study_notes: notesCount,
       sync_queue: syncQueueCount,
     },
-    fallback.database,
   );
   const incidentList = deriveIncidents(
     incidents,
     fleet,
     pendingSync,
     users,
-    fallback.incidents,
   );
   const criticalIncidents = incidentList.filter(
     (incident) => incident.severity === "critical",
   ).length;
 
+  const hasAnyRealData =
+    users.length > 0 ||
+    fleet.length > 0 ||
+    systems.length > 0 ||
+    incidentList.length > 0 ||
+    database.some((item) => item.rowCount > 0);
+
+  if (!hasAnyRealData) {
+    return getEmptyCommandCenterSnapshot(
+      generatedAt,
+      opsAdmin || productAdmin ? "supabase" : "empty",
+    );
+  }
+
   return {
     mode: "supabase",
-    generatedAt: new Date().toISOString(),
+    generatedAt,
     metrics: [
       {
         label: "Usuarios monitorados",
         value: formatCompactNumber(profilesCount ?? users.length),
         delta: `${activeUsers} ativos nos ultimos 7 dias`,
-        hint: "Contagem real vinda de profiles e uso recente em study_sessions.",
+        hint: "Leitura consolidada da base do produto e do uso recente das sessoes.",
         tone: "good",
       },
       {
@@ -717,10 +896,12 @@ export async function getCommandCenterSnapshot(): Promise<CommandCenterSnapshot>
         tone: criticalIncidents > 0 ? "critical" : "neutral",
       },
     ],
-    activity: activity.some((item) => item.sessions > 0) ? activity : fallback.activity,
+    activity,
     fleet,
+    platforms,
+    releases,
     systems,
-    users: users.length ? users : fallback.users,
+    users,
     database,
     incidents: incidentList,
   };

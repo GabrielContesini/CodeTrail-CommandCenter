@@ -9,14 +9,15 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { FleetNode } from "@/lib/types";
+import type { PlatformSnapshot } from "@/lib/types";
 import { platformLabel } from "@/lib/utils";
 
-export function FleetChart({ data }: { data: FleetNode[] }) {
+export function FleetChart({ data }: { data: PlatformSnapshot[] }) {
   const chartData = data.map((item) => ({
     label: platformLabel(item.platform),
-    uptime: item.uptimePercent,
+    activeUsers: item.activeUsers,
     pendingSync: item.pendingSync,
+    instances: item.instances,
   }));
 
   return (
@@ -43,7 +44,7 @@ export function FleetChart({ data }: { data: FleetNode[] }) {
               color: "#eef4ff",
             }}
           />
-          <Bar dataKey="uptime" fill="#63b3ff" radius={[12, 12, 0, 0]} />
+          <Bar dataKey="activeUsers" fill="#63b3ff" radius={[12, 12, 0, 0]} />
           <Bar dataKey="pendingSync" fill="#ffd166" radius={[12, 12, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>

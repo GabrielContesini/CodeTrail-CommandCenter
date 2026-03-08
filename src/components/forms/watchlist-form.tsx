@@ -130,7 +130,7 @@ export function WatchlistForm({ user }: { user: UserSnapshot }) {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-[var(--text-secondary)]">
-          {feedback ?? "As notas ficam em ops_user_watchlist no Supabase."}
+          {feedback ?? "Essas notas ajudam a operacao a acompanhar usuarios em risco."}
         </p>
         <button
           type="submit"

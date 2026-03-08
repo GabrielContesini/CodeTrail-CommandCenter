@@ -1,4 +1,12 @@
 import { z } from "zod";
+import type { AdminRole } from "@/lib/types";
+
+const adminRoleOptions = [
+  "owner",
+  "admin",
+  "operator",
+  "viewer",
+] as const satisfies readonly AdminRole[];
 
 export const watchlistPayloadSchema = z.object({
   profileId: z.string().uuid(),
@@ -33,4 +41,34 @@ export const heartbeatPayloadSchema = z.object({
   networkStatus: z.string().max(32).default("online"),
   metadata: z.record(z.string(), z.unknown()).default({}),
   payload: z.record(z.string(), z.unknown()).default({}),
+});
+
+export const adminMemberCreatePayloadSchema = z.object({
+  email: z.email().max(160),
+  displayName: z.string().trim().min(2).max(120).optional(),
+  role: z.enum(adminRoleOptions),
+});
+
+export const adminMemberUpdatePayloadSchema = z.object({
+  displayName: z.string().trim().min(2).max(120),
+  role: z.enum(adminRoleOptions),
+});
+
+export const bootstrapOwnerPayloadSchema = z.object({
+  email: z.email().max(160),
+  password: z.string().min(8).max(128),
+  displayName: z.string().trim().min(2).max(120),
+});
+
+export const incidentPayloadSchema = z.object({
+  title: z.string().trim().min(4).max(180),
+  severity: z.enum(["info", "warning", "critical"]),
+  source: z.string().trim().min(2).max(120),
+  status: z.enum(["open", "investigating", "mitigated", "resolved"]),
+  summary: z.string().trim().min(8).max(1200),
+  suggestedAction: z.string().trim().max(1000).default(""),
+  profileId: z.uuid().nullable().optional(),
+  instanceId: z.uuid().nullable().optional(),
+  platform: z.enum(["android", "windows", "web", "api"]).nullable().optional(),
+  version: z.string().trim().max(64).nullable().optional(),
 });

@@ -19,7 +19,7 @@ create table if not exists public.ops_admin_profiles (
 );
 
 create table if not exists public.ops_user_watchlist (
-  profile_id uuid primary key references public.profiles(id) on delete cascade,
+  profile_id uuid primary key,
   risk_level text not null default 'healthy'
     check (risk_level in ('healthy', 'attention', 'critical')),
   support_status text not null default 'stable'
@@ -34,7 +34,7 @@ create table if not exists public.ops_user_watchlist (
 create table if not exists public.ops_app_instances (
   id uuid primary key default gen_random_uuid(),
   external_id text not null unique,
-  profile_id uuid references public.profiles(id) on delete set null,
+  profile_id uuid,
   platform text not null check (platform in ('android', 'windows', 'web', 'api')),
   release_channel text not null default 'stable',
   app_version text not null,

@@ -22,6 +22,16 @@ export function formatPercent(value: number) {
   return `${value.toFixed(1)}%`;
 }
 
+export function formatDurationMinutes(value: number) {
+  if (value < 60) {
+    return `${value}min`;
+  }
+
+  const hours = Math.floor(value / 60);
+  const minutes = value % 60;
+  return minutes ? `${hours}h ${minutes}min` : `${hours}h`;
+}
+
 export function formatDateTime(value: string) {
   return new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "short",

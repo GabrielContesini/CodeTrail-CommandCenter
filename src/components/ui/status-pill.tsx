@@ -8,6 +8,8 @@ const toneClassMap = {
 };
 
 const labelMap: Record<string, string> = {
+  neutral: "neutral",
+  good: "good",
   up: "up",
   degraded: "degraded",
   down: "down",
