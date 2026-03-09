@@ -39,7 +39,7 @@ export function DatabaseChart({ data }: { data: DatabaseMetric[] }) {
               color: "#eef4ff",
             }}
           />
-          <Bar dataKey="rowCount" fill="#22D3EE" radius={[0, 12, 12, 0]} />
+          <Bar dataKey="rowCount" fill="#2EC5FF" radius={[0, 12, 12, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

@@ -59,7 +59,7 @@ export function UserOpsWorkspace({ users }: { users: UserSnapshot[] }) {
                 onClick={() => setSelectedId(user.id)}
                 className={`w-full rounded-3xl border p-4 text-left ${
                   active
-                    ? "border-[var(--accent)] bg-[rgba(99,179,255,0.12)]"
+                    ? "border-[var(--accent)] bg-[rgba(0,95,115,0.24)]"
                     : "border-white/8 bg-black/10"
                 }`}
               >

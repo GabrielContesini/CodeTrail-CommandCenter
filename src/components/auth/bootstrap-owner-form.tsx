@@ -67,7 +67,7 @@ export function BootstrapOwnerForm() {
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
-      <div className="rounded-2xl border border-[rgba(127,255,211,0.24)] bg-[rgba(127,255,211,0.08)] px-4 py-3 text-sm text-[#d7fff0]">
+      <div className="rounded-2xl border border-[rgba(53,211,154,0.24)] bg-[rgba(53,211,154,0.08)] px-4 py-3 text-sm text-[#d9fff2]">
         Nenhum owner foi encontrado. Cadastre agora a primeira conta
         administrativa do Command Center.
       </div>
@@ -83,7 +83,7 @@ export function BootstrapOwnerForm() {
           required
           value={displayName}
           onChange={(event) => setDisplayName(event.target.value)}
-          className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(99,179,255,0.2)]"
+          className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(0,95,115,0.24)]"
           placeholder="Gabriel Contesini"
         />
       </div>
@@ -99,7 +99,7 @@ export function BootstrapOwnerForm() {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(99,179,255,0.2)]"
+          className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(0,95,115,0.24)]"
           placeholder="owner@codetrail.app"
         />
       </div>
@@ -117,7 +117,7 @@ export function BootstrapOwnerForm() {
             minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 pr-12 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(99,179,255,0.2)]"
+            className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 pr-12 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(0,95,115,0.24)]"
             placeholder="Crie uma senha forte"
           />
           <button
@@ -140,7 +140,7 @@ export function BootstrapOwnerForm() {
       <button
         type="submit"
         disabled={loading}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#4F8CFF,#22D3EE)] px-5 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-70"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#005F73,#2EC5FF)] px-5 py-3 text-sm font-semibold text-[#04080B] disabled:cursor-not-allowed disabled:opacity-70"
       >
         {loading ? (
           <LoaderCircle className="animate-spin" size={18} />

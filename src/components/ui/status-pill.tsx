@@ -2,7 +2,7 @@ import { cn, statusTone } from "@/lib/utils";
 
 const toneClassMap = {
   neutral: "border-white/10 bg-white/6 text-[var(--text-secondary)]",
-  good: "border-[rgba(127,255,211,0.2)] bg-[rgba(127,255,211,0.12)] text-[var(--accent-secondary)]",
+  good: "border-[rgba(53,211,154,0.2)] bg-[rgba(53,211,154,0.12)] text-[var(--success)]",
   warning: "border-[rgba(255,209,102,0.24)] bg-[rgba(255,209,102,0.12)] text-[var(--accent-warning)]",
   critical: "border-[rgba(255,126,139,0.24)] bg-[rgba(255,126,139,0.12)] text-[var(--accent-danger)]",
 };

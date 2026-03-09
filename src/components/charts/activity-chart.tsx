@@ -18,12 +18,12 @@ export function ActivityChart({ data }: { data: ActivityPoint[] }) {
         <AreaChart data={data}>
           <defs>
             <linearGradient id="sessionsFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#4F8CFF" stopOpacity={0.34} />
-              <stop offset="100%" stopColor="#4F8CFF" stopOpacity={0.02} />
+              <stop offset="0%" stopColor="#005F73" stopOpacity={0.34} />
+              <stop offset="100%" stopColor="#005F73" stopOpacity={0.02} />
             </linearGradient>
             <linearGradient id="syncFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#22D3EE" stopOpacity={0.26} />
-              <stop offset="100%" stopColor="#22D3EE" stopOpacity={0.02} />
+              <stop offset="0%" stopColor="#2EC5FF" stopOpacity={0.26} />
+              <stop offset="100%" stopColor="#2EC5FF" stopOpacity={0.02} />
             </linearGradient>
           </defs>
           <CartesianGrid stroke="rgba(151,171,196,0.12)" vertical={false} />
@@ -49,14 +49,14 @@ export function ActivityChart({ data }: { data: ActivityPoint[] }) {
           <Area
             type="monotone"
             dataKey="sessions"
-            stroke="#4F8CFF"
+            stroke="#005F73"
             strokeWidth={2.6}
             fill="url(#sessionsFill)"
           />
           <Area
             type="monotone"
             dataKey="syncBacklog"
-            stroke="#22D3EE"
+            stroke="#2EC5FF"
             strokeWidth={2}
             fill="url(#syncFill)"
           />

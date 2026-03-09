@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 const toneMap = {
   neutral: "border-white/8 bg-black/10",
-  good: "border-[rgba(127,255,211,0.16)] bg-[rgba(127,255,211,0.08)]",
+  good: "border-[rgba(53,211,154,0.16)] bg-[rgba(53,211,154,0.08)]",
   warning: "border-[rgba(255,209,102,0.18)] bg-[rgba(255,209,102,0.08)]",
   critical: "border-[rgba(255,126,139,0.18)] bg-[rgba(255,126,139,0.08)]",
 };

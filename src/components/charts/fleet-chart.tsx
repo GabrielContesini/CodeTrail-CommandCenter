@@ -44,7 +44,7 @@ export function FleetChart({ data }: { data: PlatformSnapshot[] }) {
               color: "#eef4ff",
             }}
           />
-          <Bar dataKey="activeUsers" fill="#4F8CFF" radius={[12, 12, 0, 0]} />
+          <Bar dataKey="activeUsers" fill="#005F73" radius={[12, 12, 0, 0]} />
           <Bar dataKey="pendingSync" fill="#ffd166" radius={[12, 12, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>

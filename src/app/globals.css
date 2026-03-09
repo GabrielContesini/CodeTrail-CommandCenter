@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #061018;
-  --background-elevated: #0b1220;
-  --surface: #121a2a;
-  --surface-strong: #182235;
-  --surface-muted: #0d1727;
-  --stroke: rgba(38, 50, 72, 0.88);
-  --stroke-strong: rgba(65, 85, 116, 0.95);
-  --text-primary: #f5f7fb;
-  --text-secondary: #9ba9bf;
-  --accent: #4f8cff;
-  --accent-secondary: #22d3ee;
-  --accent-warning: #f59e0b;
-  --accent-danger: #ef4444;
-  --success: #22c55e;
+  --background: #04080b;
+  --background-elevated: #0a0f14;
+  --surface: #111821;
+  --surface-strong: #16212b;
+  --surface-muted: #0d141b;
+  --stroke: rgba(34, 50, 64, 0.88);
+  --stroke-strong: rgba(48, 70, 89, 0.95);
+  --text-primary: #f4f7fa;
+  --text-secondary: #9fb2c3;
+  --accent: #005f73;
+  --accent-secondary: #2ec5ff;
+  --accent-warning: #ffc857;
+  --accent-danger: #ff6b6b;
+  --success: #35d39a;
   --shadow-color: rgba(0, 0, 0, 0.38);
 }
 
@@ -37,15 +37,15 @@ body {
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(79, 140, 255, 0.16), transparent 32%),
-    radial-gradient(circle at 82% 14%, rgba(34, 211, 238, 0.1), transparent 20%),
-    linear-gradient(180deg, #061018 0%, #07111d 52%, #0b1220 100%);
+    radial-gradient(circle at top left, rgba(0, 95, 115, 0.18), transparent 32%),
+    radial-gradient(circle at 82% 14%, rgba(46, 197, 255, 0.1), transparent 20%),
+    linear-gradient(180deg, #04080b 0%, #081016 52%, #0a0f14 100%);
   color: var(--text-primary);
   font-family: "Bahnschrift", "Aptos", "Segoe UI", sans-serif;
 }
 
 ::selection {
-  background: rgba(79, 140, 255, 0.28);
+  background: rgba(46, 197, 255, 0.28);
   color: var(--text-primary);
 }
 
@@ -73,14 +73,14 @@ select {
 
 .subtle-grid {
   background-image:
-    linear-gradient(rgba(79, 140, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(79, 140, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(46, 197, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(46, 197, 255, 0.05) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: rgba(79, 140, 255, 0.28) transparent;
+  scrollbar-color: rgba(46, 197, 255, 0.28) transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -89,7 +89,7 @@ select {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(79, 140, 255, 0.28);
+  background: rgba(46, 197, 255, 0.28);
   border-radius: 999px;
 }
 
@@ -109,8 +109,8 @@ select {
   padding: 1px;
   background: linear-gradient(
     135deg,
-    rgba(79, 140, 255, 0.16),
-    rgba(34, 211, 238, 0.08)
+    rgba(0, 95, 115, 0.22),
+    rgba(46, 197, 255, 0.1)
   );
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,

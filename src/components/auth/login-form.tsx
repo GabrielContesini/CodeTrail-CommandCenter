@@ -70,7 +70,7 @@ export function LoginForm({
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(99,179,255,0.2)]"
+          className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(0,95,115,0.24)]"
           placeholder="owner@codetrail.app"
         />
       </div>
@@ -87,7 +87,7 @@ export function LoginForm({
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 pr-12 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(99,179,255,0.2)]"
+            className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 pr-12 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(0,95,115,0.24)]"
             placeholder="Sua senha administrativa"
           />
           <button
@@ -110,7 +110,7 @@ export function LoginForm({
       <button
         type="submit"
         disabled={loading}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#4F8CFF,#22D3EE)] px-5 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-70"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#005F73,#2EC5FF)] px-5 py-3 text-sm font-semibold text-[#04080B] disabled:cursor-not-allowed disabled:opacity-70"
       >
         {loading ? <LoaderCircle className="animate-spin" size={18} /> : <LogIn size={18} />}
         Entrar no Command Center

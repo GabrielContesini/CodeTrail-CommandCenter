@@ -191,7 +191,7 @@ export function AdminMembersWorkspace({
           </div>
 
           {feedback ? (
-            <div className="mt-5 rounded-2xl border border-[rgba(99,179,255,0.24)] bg-[rgba(99,179,255,0.08)] px-4 py-3 text-sm text-[#d6ebff]">
+            <div className="mt-5 rounded-2xl border border-[rgba(0,95,115,0.28)] bg-[rgba(0,95,115,0.1)] px-4 py-3 text-sm text-[#d7eff4]">
               {feedback}
             </div>
           ) : null}
@@ -266,7 +266,7 @@ export function AdminMembersWorkspace({
                         type="button"
                         disabled={!canManageMembers || isSaving || ownerLock}
                         onClick={() => handleMemberSave(member.id)}
-                        className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#4F8CFF,#22D3EE)] px-4 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#005F73,#2EC5FF)] px-4 py-3 text-sm font-semibold text-[#04080B] disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {isSaving ? "Salvando..." : "Salvar"}
                       </button>
@@ -354,7 +354,7 @@ export function AdminMembersWorkspace({
             <button
               type="submit"
               disabled={!canManageMembers || creating}
-              className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#4F8CFF,#22D3EE)] px-5 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#005F73,#2EC5FF)] px-5 py-3 text-sm font-semibold text-[#04080B] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {creating ? "Concedendo acesso..." : "Conceder acesso"}
             </button>

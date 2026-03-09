@@ -116,7 +116,7 @@ export function AppShell({
                         className={cn(
                           "flex items-center gap-3 rounded-3xl px-4 py-3 text-sm font-medium",
                           active
-                            ? "bg-[linear-gradient(135deg,rgba(99,179,255,0.24),rgba(127,255,211,0.12))] text-white shadow-[0_12px_30px_-18px_rgba(99,179,255,0.7)]"
+                            ? "bg-[linear-gradient(135deg,rgba(0,95,115,0.28),rgba(46,197,255,0.12))] text-white shadow-[0_12px_30px_-18px_rgba(46,197,255,0.36)]"
                             : "text-[var(--text-secondary)] hover:bg-white/5 hover:text-white",
                         )}
                       >
@@ -315,7 +315,7 @@ export function AppShell({
                           className={cn(
                             "flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium",
                             active
-                              ? "border-[var(--accent)] bg-[rgba(99,179,255,0.16)] text-white"
+                              ? "border-[var(--accent)] bg-[rgba(0,95,115,0.24)] text-white"
                               : "border-white/10 text-[var(--text-secondary)]",
                           )}
                         >
