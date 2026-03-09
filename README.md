@@ -63,7 +63,7 @@ Descricao rapida:
 - `PRODUCT_SUPABASE_URL`: URL do banco do produto CodeTrail App
 - `PRODUCT_SUPABASE_SERVICE_ROLE_KEY`: chave privada para leitura operacional do banco do produto
 - `TELEMETRY_INGEST_TOKEN`: token compartilhado para ingestao de heartbeat
-- `NEXT_PUBLIC_APP_URL`: URL publica do painel
+- `NEXT_PUBLIC_APP_URL`: URL publica do painel. Na Vercel pode ficar vazio se voce preferir usar o dominio detectado automaticamente.
 
 ## Setup do Supabase
 
@@ -124,6 +124,28 @@ npm run lint
 npm run typecheck
 npm run build
 ```
+
+## Deploy na Vercel
+
+Fluxo recomendado:
+
+1. importe o repositório `CodeTrail-CommandCenter` na Vercel
+2. mantenha o framework como `Next.js`
+3. configure estas variaveis de ambiente no projeto:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `PRODUCT_SUPABASE_URL`
+   - `PRODUCT_SUPABASE_SERVICE_ROLE_KEY`
+   - `TELEMETRY_INGEST_TOKEN`
+   - `NEXT_PUBLIC_APP_URL`
+4. publique
+
+Observacoes:
+
+- o arquivo [vercel.json](./vercel.json) ja deixa `install` e `build` explicitos
+- se `NEXT_PUBLIC_APP_URL` nao for preenchido, o painel tenta usar `VERCEL_PROJECT_PRODUCTION_URL` ou `VERCEL_URL`
+- depois do primeiro deploy, use a URL publica da Vercel como valor de `COMMAND_CENTER_URL` no app Windows
 
 ## Rotas e endpoints
 
