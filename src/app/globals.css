@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b1220;
-  --background-elevated: #121a2a;
+  --background: #061018;
+  --background-elevated: #0b1220;
   --surface: #121a2a;
   --surface-strong: #182235;
-  --surface-muted: #101827;
+  --surface-muted: #0d1727;
   --stroke: rgba(38, 50, 72, 0.88);
   --stroke-strong: rgba(65, 85, 116, 0.95);
   --text-primary: #f5f7fb;
@@ -13,7 +13,7 @@
   --accent: #4f8cff;
   --accent-secondary: #22d3ee;
   --accent-warning: #f59e0b;
-  --accent-danger: #f59e0b;
+  --accent-danger: #ef4444;
   --success: #22c55e;
   --shadow-color: rgba(0, 0, 0, 0.38);
 }
@@ -37,9 +37,9 @@ body {
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(79, 140, 255, 0.18), transparent 34%),
-    radial-gradient(circle at 82% 14%, rgba(34, 211, 238, 0.12), transparent 22%),
-    linear-gradient(180deg, #0b1220 0%, #0b1220 52%, #0e1525 100%);
+    radial-gradient(circle at top left, rgba(79, 140, 255, 0.16), transparent 32%),
+    radial-gradient(circle at 82% 14%, rgba(34, 211, 238, 0.1), transparent 20%),
+    linear-gradient(180deg, #061018 0%, #07111d 52%, #0b1220 100%);
   color: var(--text-primary);
   font-family: "Bahnschrift", "Aptos", "Segoe UI", sans-serif;
 }
