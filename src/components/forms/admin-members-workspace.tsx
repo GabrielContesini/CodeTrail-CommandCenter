@@ -266,7 +266,7 @@ export function AdminMembersWorkspace({
                         type="button"
                         disabled={!canManageMembers || isSaving || ownerLock}
                         onClick={() => handleMemberSave(member.id)}
-                        className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#63b3ff,#7fffd3)] px-4 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#4F8CFF,#22D3EE)] px-4 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {isSaving ? "Salvando..." : "Salvar"}
                       </button>
@@ -354,7 +354,7 @@ export function AdminMembersWorkspace({
             <button
               type="submit"
               disabled={!canManageMembers || creating}
-              className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#63b3ff,#7fffd3)] px-5 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#4F8CFF,#22D3EE)] px-5 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {creating ? "Concedendo acesso..." : "Conceder acesso"}
             </button>

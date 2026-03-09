@@ -450,7 +450,7 @@ export function IncidentConsole({
             <button
               type="submit"
               disabled={!canEdit || saving || deleting}
-              className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#63b3ff,#7fffd3)] px-5 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#4F8CFF,#22D3EE)] px-5 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Salvando..." : selectedId === "new" ? "Criar incidente" : "Salvar incidente"}
             </button>

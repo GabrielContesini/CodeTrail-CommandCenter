@@ -135,7 +135,7 @@ export function WatchlistForm({ user }: { user: UserSnapshot }) {
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#63b3ff,#7fffd3)] px-5 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#4F8CFF,#22D3EE)] px-5 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {saving ? "Salvando..." : "Salvar watchlist"}
         </button>

@@ -73,10 +73,10 @@ export function AppShell({
             <div className="flex items-center gap-4">
               <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-white/8 bg-black/20">
                 <Image
-                  src="/CodeTrail.svg"
+                  src="/design/CodeTrailMainIcon.png"
                   alt="CodeTrail"
                   fill
-                  className="object-cover"
+                  className="object-contain p-1.5"
                   priority
                 />
               </div>
