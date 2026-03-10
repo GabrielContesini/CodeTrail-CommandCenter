@@ -1,121 +1,140 @@
 @import "tailwindcss";
 
-:root {
-  --background: #04080b;
-  --background-elevated: #0a0f14;
-  --surface: #111821;
-  --surface-strong: #16212b;
-  --surface-muted: #0d141b;
-  --stroke: rgba(34, 50, 64, 0.88);
-  --stroke-strong: rgba(48, 70, 89, 0.95);
-  --text-primary: #f4f7fa;
-  --text-secondary: #9fb2c3;
-  --accent: #005f73;
-  --accent-secondary: #2ec5ff;
-  --accent-warning: #ffc857;
-  --accent-danger: #ff6b6b;
-  --success: #35d39a;
-  --shadow-color: rgba(0, 0, 0, 0.38);
+/* OLED Data-Intensive Design System (UI/UX Pro Max) */
+@theme {
+  --font-sans: var(--font-fira-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-fira-code), ui-monospace, SFMono-Regular, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--text-primary);
-  --font-sans: "Bahnschrift", "Aptos", "Segoe UI", sans-serif;
-  --font-mono: "Cascadia Code", "Consolas", monospace;
+@layer base {
+  :root {
+    /* OLED Core - Deep space black */
+    --background: #000000;
+    --panel-bg: #050505;
+    --panel-border: rgba(255, 255, 255, 0.08);
+
+    /* Typography */
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #475569;
+
+    /* Semantic Identity */
+    --primary: #3B82F6; /* Trust Blue */
+    --primary-muted: rgba(59, 130, 246, 0.15);
+
+    --cta: #F97316; /* Telemetry Orange */
+    --cta-muted: rgba(249, 115, 22, 0.15);
+
+    /* Telemetry Statuses */
+    --success: #10B981;
+    --success-muted: rgba(16, 185, 129, 0.12);
+
+    --warning: #F59E0B;
+    --warning-muted: rgba(245, 158, 11, 0.12);
+
+    --danger: #EF4444;
+    --danger-muted: rgba(239, 68, 68, 0.12);
+
+    --neutral: #64748B;
+    --neutral-muted: rgba(100, 116, 139, 0.15);
+  }
 }
 
-* {
-  border-color: var(--stroke);
+@layer base {
+  * {
+    border-color: var(--panel-border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
-html,
-body {
-  margin: 0;
-  min-height: 100%;
+/* Utilities for OLED Terminal Aesthetic */
+@layer utilities {
+  .subtle-grid {
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+  }
+
+  .oled-panel {
+    background-color: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+
+  /* Soft glowing edges instead of hard shadows */
+  .oled-panel:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Data points styling */
+  .data-value {
+    font-family: var(--font-fira-code);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Telemetry glows */
+  .glow-text-primary {
+    text-shadow: 0 0 12px var(--primary-muted);
+  }
+  .glow-text-success {
+    text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+  }
+  .glow-text-danger {
+    text-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-enter-up {
+    animation: enter-up 0.5s ease-out both;
+  }
 }
 
-body {
-  background:
-    radial-gradient(circle at top left, rgba(0, 95, 115, 0.18), transparent 32%),
-    radial-gradient(circle at 82% 14%, rgba(46, 197, 255, 0.1), transparent 20%),
-    linear-gradient(180deg, #04080b 0%, #081016 52%, #0a0f14 100%);
-  color: var(--text-primary);
-  font-family: "Bahnschrift", "Aptos", "Segoe UI", sans-serif;
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
 }
 
-::selection {
-  background: rgba(46, 197, 255, 0.28);
-  color: var(--text-primary);
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-a,
-button,
-input,
-textarea,
-select {
-  transition:
-    color 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
+/* Custom Scrollbar for OLED */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-
-.glass-panel {
-  background:
-    linear-gradient(180deg, rgba(24, 34, 53, 0.96) 0%, rgba(18, 26, 42, 0.96) 100%);
-  border: 1px solid var(--stroke);
-  box-shadow:
-    0 18px 60px -28px var(--shadow-color),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+::-webkit-scrollbar-track {
+  background: var(--background);
 }
-
-.subtle-grid {
-  background-image:
-    linear-gradient(rgba(46, 197, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(46, 197, 255, 0.05) 1px, transparent 1px);
-  background-size: 22px 22px;
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
 }
-
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(46, 197, 255, 0.28) transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-  height: 9px;
-  width: 9px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(46, 197, 255, 0.28);
-  border-radius: 999px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.panel-ring {
-  position: relative;
-}
-
-.panel-ring::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 95, 115, 0.22),
-    rgba(46, 197, 255, 0.1)
-  );
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }

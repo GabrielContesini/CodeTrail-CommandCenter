@@ -1,23 +1,54 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
   Activity,
   ChevronDown,
   Database,
   FolderKanban,
   HeartPulse,
-  LayoutDashboard,
   Layers3,
+  LayoutDashboard,
   LogOut,
   MonitorCog,
+  Search,
   Shield,
-  Siren,
+  Siren
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useQueryState } from "nuqs";
+import { Suspense, useMemo, useState } from "react";
+
+function TopBarFilters() {
+  const [envFilter, setEnvFilter] = useQueryState("env", { defaultValue: "all" });
+  const [timeRange, setTimeRange] = useQueryState("range", { defaultValue: "24h" });
+
+  return (
+    <div className="flex items-center rounded-full border border-white/10 bg-black/40 p-1">
+      <select
+        value={envFilter}
+        onChange={(e) => setEnvFilter(e.target.value)}
+        className="appearance-none cursor-pointer bg-transparent pl-3 pr-2 py-1 text-xs font-medium text-white outline-none"
+      >
+        <option value="all">Global</option>
+        <option value="prod">Producao</option>
+        <option value="stag">Staging</option>
+      </select>
+      <div className="h-4 w-px bg-white/10 mx-1" />
+      <select
+        value={timeRange}
+        onChange={(e) => setTimeRange(e.target.value)}
+        className="appearance-none cursor-pointer bg-transparent pl-2 pr-3 py-1 text-xs font-medium text-[var(--accent-secondary)] outline-none"
+      >
+        <option value="1h">1H</option>
+        <option value="24h">24H</option>
+        <option value="7d">7D</option>
+      </select>
+    </div>
+  );
+}
 
 const primaryNavigation = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
@@ -64,14 +95,16 @@ export function AppShell({
         : pathname.startsWith(item.href),
     ) ?? navigation[0];
 
+  const globalHealthScore = 94; // Mocked for now
+
   return (
     <div className="min-h-screen text-[var(--text-primary)]">
       <div className="pointer-events-none fixed inset-0 subtle-grid opacity-20" />
       <div className="relative mx-auto min-h-screen max-w-[1880px] xl:grid xl:grid-cols-[272px_minmax(0,1fr)] xl:gap-5 xl:px-6 xl:py-6">
-        <aside className="glass-panel panel-ring hidden self-start overflow-hidden rounded-[32px] xl:sticky xl:top-6 xl:flex xl:h-[calc(100vh-3rem)] xl:flex-col">
-          <div className="border-b border-white/8 px-6 py-5">
+        <aside className="oled-panel hidden self-start overflow-hidden rounded-[20px] xl:sticky xl:top-6 xl:flex xl:h-[calc(100vh-3rem)] xl:flex-col">
+          <div className="border-b border-white/5 px-6 py-5 bg-[var(--background)]">
             <div className="flex items-center gap-4">
-              <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-white/8 bg-black/20">
+              <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg border border-[var(--primary-muted)] bg-[var(--primary-muted)]">
                 <Image
                   src="/design/CodeTrailMainIcon.png"
                   alt="CodeTrail"
@@ -81,10 +114,10 @@ export function AppShell({
                 />
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.26em] text-[var(--accent-secondary)]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-muted)]">
                   operations
                 </p>
-                <h1 className="mt-1 text-lg font-semibold text-white">
+                <h1 className="mt-1 text-[15px] font-semibold text-white tracking-tight leading-tight">
                   CodeTrail Command Center
                 </h1>
               </div>
@@ -114,25 +147,18 @@ export function AppShell({
                         key={item.href}
                         href={item.href}
                         className={cn(
-                          "flex items-center gap-3 rounded-3xl px-4 py-3 text-sm font-medium",
+                          "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-colors",
                           active
-                            ? "bg-[linear-gradient(135deg,rgba(0,95,115,0.28),rgba(46,197,255,0.12))] text-white shadow-[0_12px_30px_-18px_rgba(46,197,255,0.36)]"
-                            : "text-[var(--text-secondary)] hover:bg-white/5 hover:text-white",
+                            ? "bg-[var(--primary-muted)] text-[var(--primary)] border border-[var(--primary-muted)]"
+                            : "text-[var(--text-secondary)] border border-transparent hover:bg-white/[0.03] hover:text-white",
                         )}
                       >
-                        <span
-                          className={cn(
-                            "flex h-10 w-10 items-center justify-center rounded-2xl border",
-                            active
-                              ? "border-white/12 bg-black/20"
-                              : "border-white/8 bg-black/10",
-                          )}
-                        >
-                          <Icon size={18} />
+                        <span className="flex items-center justify-center">
+                          <Icon size={16} className={active ? "text-[var(--primary)]" : "opacity-80"} />
                         </span>
                         <span className="flex-1">{item.label}</span>
                         {badge ? (
-                          <span className="rounded-full border border-white/10 bg-white/6 px-2.5 py-1 text-[11px] text-white">
+                          <span className="data-value rounded border border-[var(--danger-muted)] bg-[var(--danger-muted)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--danger)]">
                             {badge}
                           </span>
                         ) : null}
@@ -216,36 +242,30 @@ export function AppShell({
                 <div className="mt-3 space-y-2">
                   <Link
                     href="/users"
-                    className="flex items-center gap-3 rounded-3xl px-4 py-3 text-sm text-[var(--text-secondary)] hover:bg-white/5 hover:text-white"
+                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] border border-transparent text-[var(--text-secondary)] hover:bg-[var(--warning-muted)] hover:border-[var(--warning-muted)] hover:text-[var(--warning)] transition-colors"
                   >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/8 bg-black/10">
-                      <HeartPulse size={18} />
+                    <span className="flex items-center justify-center">
+                      <HeartPulse size={16} className="opacity-80" />
                     </span>
                     <span className="flex-1">
-                      <span className="block text-sm text-white">Minha watchlist</span>
-                      <span className="mt-1 block text-xs text-[var(--text-secondary)]">
-                        usuarios que exigem follow-up
-                      </span>
+                      <span className="block text-[13px] font-medium text-inherit">Minha watchlist</span>
                     </span>
-                    <span className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[11px] text-[var(--accent-secondary)]">
+                    <span className="data-value rounded border border-[var(--warning-muted)] bg-black/40 px-1.5 py-0.5 text-[10px] font-semibold text-inherit">
                       {sidebarSummary.riskyUsers}
                     </span>
                   </Link>
 
                   <Link
                     href="/database"
-                    className="flex items-center gap-3 rounded-3xl px-4 py-3 text-sm text-[var(--text-secondary)] hover:bg-white/5 hover:text-white"
+                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] border border-transparent text-[var(--text-secondary)] hover:bg-[var(--neutral-muted)] hover:border-[var(--panel-border)] hover:text-white transition-colors"
                   >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/8 bg-black/10">
-                      <FolderKanban size={18} />
+                    <span className="flex items-center justify-center">
+                      <FolderKanban size={16} className="opacity-80" />
                     </span>
                     <span className="flex-1">
-                      <span className="block text-sm text-white">Fila de sync</span>
-                      <span className="mt-1 block text-xs text-[var(--text-secondary)]">
-                        backlog atual aguardando flush
-                      </span>
+                      <span className="block text-[13px] font-medium text-inherit">Fila de sync</span>
                     </span>
-                    <span className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[11px] text-[var(--accent-warning)]">
+                    <span className="data-value rounded border border-[var(--neutral-muted)] bg-black/40 px-1.5 py-0.5 text-[10px] font-semibold text-inherit">
                       {sidebarSummary.pendingSync}
                     </span>
                   </Link>
@@ -254,9 +274,9 @@ export function AppShell({
             </div>
           </nav>
 
-          <div className="shrink-0 border-t border-white/8 px-4 pb-4 pt-3">
+          <div className="shrink-0 border-t border-[var(--panel-border)] bg-[var(--background)] px-4 pb-4 pt-4">
             {admin ? (
-              <div className="rounded-[26px] border border-white/8 bg-black/15 p-3.5">
+              <div className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] p-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">
@@ -288,16 +308,22 @@ export function AppShell({
 
         <main className="min-w-0 px-4 py-6 sm:px-6 xl:px-0 xl:py-0">
           <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-7">
-            <div className="px-1.5 sm:px-2">
-              <div className="glass-panel panel-ring sticky top-6 z-10 rounded-[24px] border border-white/8 px-4 py-3 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.65)] sm:px-5">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.26em] text-[var(--text-secondary)]">
-                      superficie ativa
-                    </p>
-                    <h2 className="mt-1 text-base font-semibold text-white sm:text-lg">
-                      {currentItem.label}
-                    </h2>
+            <div className="px-0 sm:px-2">
+              <div className="oled-panel sticky top-6 z-10 flex min-h-[60px] flex-col justify-center rounded-[16px] px-4 py-3 sm:px-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-[84px] shrink-0 flex-col items-center justify-center rounded-lg bg-[var(--success-muted)] border border-[rgba(16,185,129,0.2)]">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--success)] opacity-90">Score</span>
+                      <span className="data-value text-base font-bold leading-none text-[var(--success)] glow-text-success">{globalHealthScore}</span>
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-bold">
+                        superficie ativa
+                      </p>
+                      <h2 className="mt-0.5 text-[15px] font-semibold text-white tracking-tight">
+                        {currentItem.label}
+                      </h2>
+                    </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 xl:hidden">
@@ -313,10 +339,10 @@ export function AppShell({
                           key={item.href}
                           href={item.href}
                           className={cn(
-                            "flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium",
+                            "flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-all",
                             active
-                              ? "border-[var(--accent)] bg-[rgba(0,95,115,0.24)] text-white"
-                              : "border-white/10 text-[var(--text-secondary)]",
+                              ? "border-[var(--accent)] bg-[rgba(0,142,179,0.24)] text-white shadow-[0_0_12px_rgba(0,191,255,0.2)]"
+                              : "border-white/10 text-[var(--text-secondary)] hover:text-white hover:border-white/20",
                           )}
                         >
                           <Icon size={14} />
@@ -326,15 +352,24 @@ export function AppShell({
                     })}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-[var(--text-secondary)]">
-                      Operacao protegida
+                  <div className="flex items-center gap-3">
+                    <div className="hidden sm:flex items-center rounded-full border border-white/10 bg-black/40 px-3 py-1.5 focus-within:border-[var(--accent)] focus-within:bg-black/60 transition-colors">
+                      <Search size={14} className="text-[var(--text-secondary)]" />
+                      <input
+                        type="text"
+                        placeholder="Cmd + K para buscar..."
+                        className="ml-2 w-40 bg-transparent text-xs text-white placeholder-white/30 outline-none"
+                      />
+                    </div>
+
+                    <Suspense fallback={<div className="h-8 w-[160px] rounded-full border border-white/10 bg-black/40 animate-pulse" />}>
+                      <TopBarFilters />
+                    </Suspense>
+
+                    <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[rgba(255,255,255,0.03)] px-3 py-1.5 text-[11px] font-medium text-[var(--text-secondary)]">
+                      <Shield size={12} className="text-[var(--accent-secondary)]" />
+                      Protected
                     </span>
-                    {admin ? (
-                      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-[var(--text-secondary)]">
-                        {admin.role}
-                      </span>
-                    ) : null}
                   </div>
                 </div>
               </div>

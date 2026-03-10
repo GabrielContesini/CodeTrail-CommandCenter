@@ -12,9 +12,9 @@ export function SectionCard({
   className?: string;
 }) {
   return (
-    <section className={cn("glass-panel panel-ring rounded-[32px] p-6", className)}>
+    <section className={cn("oled-panel rounded-[20px] p-6", className)}>
       <div className="mb-5">
-        <h3 className="text-lg font-semibold text-white">{title}</h3>
+        <h3 className="text-lg font-semibold text-white tracking-tight">{title}</h3>
         {subtitle ? (
           <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
             {subtitle}

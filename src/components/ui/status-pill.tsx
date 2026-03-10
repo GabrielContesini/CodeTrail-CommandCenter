@@ -1,10 +1,10 @@
 import { cn, statusTone } from "@/lib/utils";
 
 const toneClassMap = {
-  neutral: "border-white/10 bg-white/6 text-[var(--text-secondary)]",
-  good: "border-[rgba(53,211,154,0.2)] bg-[rgba(53,211,154,0.12)] text-[var(--success)]",
-  warning: "border-[rgba(255,209,102,0.24)] bg-[rgba(255,209,102,0.12)] text-[var(--accent-warning)]",
-  critical: "border-[rgba(255,126,139,0.24)] bg-[rgba(255,126,139,0.12)] text-[var(--accent-danger)]",
+  neutral: "border-[var(--panel-border)] bg-[var(--panel-bg)] text-[var(--text-secondary)]",
+  good: "border-[var(--success-muted)] bg-[var(--success-muted)] text-[var(--success)] glow-text-success",
+  warning: "border-[var(--warning-muted)] bg-[var(--warning-muted)] text-[var(--warning)]",
+  critical: "border-[var(--danger-muted)] bg-[var(--danger-muted)] text-[var(--danger)] glow-text-danger animate-pulse-slow",
 };
 
 const labelMap: Record<string, string> = {
