@@ -42,18 +42,18 @@ export default async function DatabasePage() {
             {snapshot.database.map((item) => (
               <div
                 key={item.tableName}
-                className="rounded-3xl border border-white/8 bg-black/10 p-4"
+                className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-4 transition-colors hover:border-[var(--border-default)] hover:bg-white"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-white">{item.label}</p>
-                    <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">{item.label}</p>
+                    <p className="mt-0.5 text-[12px] text-[var(--text-tertiary)]">
                       {item.description}
                     </p>
                   </div>
                   <StatusPill value={item.health} />
                 </div>
-                <p className="mt-4 text-2xl font-semibold text-white">
+                <p className="mt-4 text-[22px] font-semibold text-[var(--text-primary)] tabular-nums">
                   {formatCompactNumber(item.rowCount)}
                 </p>
               </div>
@@ -74,13 +74,13 @@ export default async function DatabasePage() {
           ].map((item) => (
             <div
               key={item}
-              className="rounded-3xl border border-white/8 bg-black/10 p-4 text-sm text-[var(--text-secondary)]"
+              className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-4 text-[13px] text-[var(--text-secondary)] leading-relaxed"
             >
               {item}
             </div>
           ))}
         </div>
-        <p className="mt-4 text-xs text-[var(--text-secondary)]">
+        <p className="mt-4 text-[12px] text-[var(--text-tertiary)]">
           Snapshot gerado em {formatDateTime(snapshot.generatedAt)}.
         </p>
       </SectionCard>

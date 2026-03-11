@@ -13,7 +13,6 @@ import {
   formatRelativeTime,
   platformLabel,
 } from "@/lib/utils";
-
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -26,18 +25,19 @@ export default async function OverviewPage(
   const snapshot = await getCommandCenterSnapshot();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7 animate-fade-in">
       <PageHeader
-        eyebrow="Visao operacional"
+        eyebrow="Visão operacional"
         title="Command Center do ecossistema CodeTrail"
-        description="Painel unico para acompanhar usuarios, fila de sincronizacao, saude dos apps e heartbeat do ambiente Windows."
+        description="Painel único para acompanhar usuários, fila de sincronização, saúde dos apps e heartbeat do ambiente Windows."
         meta={[
           {
             label: snapshot.mode === "supabase" ? "modo live" : "status",
             value:
               snapshot.mode === "supabase"
                 ? "dados reais conectados"
-                : "aguardando fontes operacionais",
+                : "aguardando fontes",
+            tone: snapshot.mode === "supabase" ? "good" : "warning",
           },
           {
             label: "atualizado",
@@ -46,157 +46,193 @@ export default async function OverviewPage(
         ]}
       />
 
-      <div className="flex border-b border-white/10 gap-6 px-2">
-        <Link
-          href="?tab=overview"
-          className={cn(
-            "pb-3 text-sm font-semibold transition-colors",
-            tab === "overview" ? "border-b-2 border-[var(--accent-secondary)] text-white" : "text-[var(--text-secondary)] hover:text-white"
-          )}
-        >
-          Visao Geral
-        </Link>
-        <Link
-          href="?tab=infra"
-          className={cn(
-            "pb-3 text-sm font-semibold transition-colors",
-            tab === "infra" ? "border-b-2 border-[var(--accent-secondary)] text-white" : "text-[var(--text-secondary)] hover:text-white"
-          )}
-        >
-          Topologia & Infra
-        </Link>
+      {/* ── Tab bar ── */}
+      <div className="flex items-end gap-0 border-b border-[var(--border-subtle)]">
+        {[
+          { key: "overview", label: "Visão Geral" },
+          { key: "infra",    label: "Topologia & Infra" },
+        ].map(({ key, label }) => (
+          <Link
+            key={key}
+            href={`?tab=${key}`}
+            className={cn(
+              "mr-6 pb-3 text-[13px] font-semibold transition-all",
+              tab === key
+                ? "border-b-2 border-[var(--accent-mid)] text-[var(--accent-mid)]"
+                : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]",
+            )}
+          >
+            {label}
+          </Link>
+        ))}
       </div>
 
+      {/* ══════════════════════════════════════════
+          OVERVIEW TAB
+      ══════════════════════════════════════════ */}
       {tab === "overview" && (
         <div className="space-y-6 animate-enter-up">
-          <section className="grid gap-6 md:grid-cols-2 2xl:grid-cols-4">
+          {/* Metric grid */}
+          <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
             {snapshot.metrics.map((metric) => (
               <MetricCard key={metric.label} metric={metric} />
             ))}
           </section>
 
-          <section className="grid gap-6 xl:grid-cols-[5fr_4fr]">
+          {/* Charts row */}
+          <section className="grid gap-4 xl:grid-cols-[5fr_4fr]">
             <SectionCard
-              title="Movimento dos ultimos 7 dias"
-              subtitle="Sessoes registradas, usuarios ativos e calor da fila de sync."
+              title="Movimento dos últimos 7 dias"
+              subtitle="Sessões registradas, usuários ativos e calor da fila de sync."
             >
               <ActivityChart data={snapshot.activity} />
             </SectionCard>
 
             <SectionCard
-              title="Saude da frota"
-              subtitle="Leitura agregada por plataforma, usuarios ativos e pressao de backlog."
+              title="Saúde da frota"
+              subtitle="Leitura agregada por plataforma, usuários ativos e pressão de backlog."
             >
               <FleetChart data={snapshot.platforms} />
             </SectionCard>
           </section>
 
-          <section className="grid gap-6 xl:grid-cols-[1.1fr_1fr_1fr]">
-            <SectionCard
-              title="Usuarios em atencao"
-              subtitle="Quem merece follow-up do time ainda hoje."
-            >
-              <div className="space-y-3">
-                {snapshot.users.length ? (
-                  snapshot.users.slice(0, 5).map((user) => (
-                    <div
-                      key={user.id}
-                      className="rounded-3xl border border-white/8 bg-black/10 p-4"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-sm font-semibold text-white">{user.name}</p>
-                          <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                            {user.trackName} · {user.desiredArea}
-                          </p>
-                        </div>
-                        <StatusPill value={user.riskLevel} />
+          {/* Users section */}
+          <SectionCard
+            title="Usuários em atenção"
+            subtitle="Quem merece follow-up do time ainda hoje."
+            action={
+              <Link
+                href="/users"
+                className="text-[12px] font-semibold text-[var(--accent-mid)] hover:underline"
+              >
+                Ver todos →
+              </Link>
+            }
+          >
+            <div className="space-y-3">
+              {snapshot.users.length ? (
+                snapshot.users.slice(0, 5).map((user) => (
+                  <div
+                    key={user.id}
+                    className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-4 transition-colors hover:border-[var(--border-default)] hover:bg-white"
+                  >
+                    {/* Header row */}
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-[13px] font-semibold text-[var(--text-primary)]">
+                          {user.name}
+                        </p>
+                        <p className="mt-0.5 text-[12px] text-[var(--text-tertiary)]">
+                          {user.trackName} · {user.desiredArea}
+                        </p>
                       </div>
-                      <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-medium text-[var(--text-secondary)]">
-                        <span className="rounded bg-black/30 px-1.5 py-0.5 border border-white/5">{user.pendingSync} pendentes</span>
-                        <span className="rounded bg-black/30 px-1.5 py-0.5 border border-white/5">{user.weeklyHours.toFixed(1)}h/sem</span>
-                        <span className="rounded bg-black/30 px-1.5 py-0.5 border border-white/5">{formatRelativeTime(user.lastSeenAt)}</span>
-                      </div>
-                      <p className="mt-3 text-[13px] leading-relaxed text-white/70">
-                        {user.internalNote}
-                      </p>
-                      <div className="mt-4 flex items-center gap-2 border-t border-white/10 pt-4">
-                        <button className="flex-1 rounded-xl bg-white/5 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/15">
-                          Forçar Sync
-                        </button>
-                        <button className="flex-1 rounded-xl border border-white/10 bg-transparent px-3 py-2 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:border-white/20 hover:text-white">
-                          Investigar
-                        </button>
-                      </div>
+                      <StatusPill value={user.riskLevel} />
                     </div>
-                  ))
-                ) : (
-                  <div className="flex flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/[0.02] p-8 text-center">
-                    <p className="text-sm font-medium text-white mb-1">Nenhum usuario em atencao</p>
-                    <p className="text-xs text-[var(--text-secondary)]">
-                      A fila esta zerada ou nenhum usuario apresentou falhas de sync recentes.
+
+                    {/* Stat chips */}
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {[
+                        `${user.pendingSync} pendentes`,
+                        `${user.weeklyHours.toFixed(1)}h/sem`,
+                        formatRelativeTime(user.lastSeenAt),
+                      ].map((chip) => (
+                        <span
+                          key={chip}
+                          className="rounded-full border border-[var(--border-default)] bg-[var(--bg-elevated)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-tertiary)]"
+                        >
+                          {chip}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Note */}
+                    <p className="mt-3 text-[12px] leading-[1.5] text-[var(--text-secondary)]">
+                      {user.internalNote}
                     </p>
+
+                    {/* Actions */}
+                    <div className="mt-3 flex items-center gap-2 border-t border-[var(--border-subtle)] pt-3">
+                      <button className="flex-1 rounded-[8px] bg-[var(--accent-light)] px-3 py-2 text-[12px] font-semibold text-[var(--accent-mid)] transition-colors hover:bg-[var(--accent-glow)]">
+                        Forçar Sync
+                      </button>
+                      <button className="flex-1 rounded-[8px] border border-[var(--border-default)] bg-transparent px-3 py-2 text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]">
+                        Investigar
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>
-            </SectionCard>
-          </section>
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-8 text-center">
+                  <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--status-green-bg)] border border-[var(--status-green-border)]">
+                    <span className="dot-green" />
+                  </div>
+                  <p className="text-[13px] font-semibold text-[var(--text-primary)]">
+                    Nenhum usuário em atenção
+                  </p>
+                  <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">
+                    A fila está zerada — sem falhas de sync recentes.
+                  </p>
+                </div>
+              )}
+            </div>
+          </SectionCard>
         </div>
       )}
 
+      {/* ══════════════════════════════════════════
+          INFRA TAB
+      ══════════════════════════════════════════ */}
       {tab === "infra" && (
         <div className="space-y-6 animate-enter-up">
-          <section className="grid gap-6 xl:grid-cols-2">
+          <section className="grid gap-4 xl:grid-cols-2">
             <SectionCard
               title="Banco de dados"
-              subtitle="Leitura rapida das tabelas mais sensiveis para a operacao."
+              subtitle="Leitura rápida das tabelas mais sensíveis para a operação."
             >
               <DatabaseChart data={snapshot.database} />
             </SectionCard>
 
             <SectionCard
               title="Incidentes ativos"
-              subtitle="Alertas persistidos ou derivados da operacao atual."
+              subtitle="Alertas persistidos ou derivados da operação atual."
             >
               <div className="space-y-3">
                 {snapshot.incidents.length ? (
                   snapshot.incidents.map((incident) => (
                     <div
                       key={incident.id}
-                      className="rounded-3xl border border-white/8 bg-black/10 p-4"
+                      className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-4 transition-colors hover:border-[var(--border-default)] hover:bg-white"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <p className="text-sm font-semibold text-white">
+                          <p className="text-[13px] font-semibold text-[var(--text-primary)]">
                             {incident.title}
                           </p>
-                          <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                          <p className="mt-0.5 text-[12px] text-[var(--text-tertiary)]">
                             {incident.source} · aberto {formatRelativeTime(incident.openedAt)}
                           </p>
                         </div>
                         <StatusPill value={incident.severity} />
                       </div>
-                      <p className="mt-3 text-[13px] leading-relaxed text-white/70">
+                      <p className="mt-3 text-[12px] leading-[1.5] text-[var(--text-secondary)]">
                         {incident.summary}
                       </p>
-                      <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent-secondary)]">
-                          {incident.action}
-                        </p>
-                        <button className="rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-white hover:bg-white/15 transition-colors">
+                      <div className="mt-3 flex items-center justify-between border-t border-[var(--border-subtle)] pt-3">
+                        <p className="label-caps text-[var(--accent-mid)]">{incident.action}</p>
+                        <button className="rounded-full bg-[var(--accent-light)] px-3 py-1 text-[11px] font-semibold text-[var(--accent-mid)] hover:bg-[var(--accent-glow)] transition-colors">
                           Acknowledge
                         </button>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/[0.02] p-8 text-center min-h-[160px]">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(23,232,159,0.1)] mb-3">
-                      <div className="h-3 w-3 rounded-full bg-[var(--success)] shadow-[0_0_12px_var(--success)] animate-pulse" />
+                  <div className="flex flex-col items-center justify-center rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-8 text-center min-h-[160px]">
+                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--status-green-bg)] border border-[var(--status-green-border)]">
+                      <span className="dot-green animate-pulse-slow" />
                     </div>
-                    <p className="text-sm font-medium text-white mb-1">Sem incidentes</p>
-                    <p className="text-xs text-[var(--text-secondary)]">
-                      Nenhum incidente operacional aberto no ecosistema.
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">Sem incidentes</p>
+                    <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">
+                      Nenhum incidente operacional aberto no ecossistema.
                     </p>
                   </div>
                 )}
@@ -204,95 +240,114 @@ export default async function OverviewPage(
             </SectionCard>
           </section>
 
+          {/* Releases radar */}
           <SectionCard
             title="Radar de releases"
-            subtitle="As versoes ativas do ecossistema e onde a operacao deve concentrar atencao."
+            subtitle="As versões ativas do ecossistema e onde a operação deve concentrar atenção."
           >
-            <div className="grid gap-4 xl:grid-cols-3">
+            <div className="grid gap-3 xl:grid-cols-3">
               {snapshot.releases.length ? (
                 snapshot.releases.slice(0, 6).map((release) => (
                   <article
                     key={release.id}
-                    className="rounded-3xl border border-white/8 bg-black/10 p-4"
+                    className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-4 transition-colors hover:border-[var(--border-default)] hover:bg-white"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-semibold text-white">
+                        <p className="text-[13px] font-semibold text-[var(--text-primary)]">
                           {platformLabel(release.platform)} · {release.version}
                         </p>
-                        <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                          {release.environments.join(", ")} · visto{" "}
-                          {formatRelativeTime(release.lastSeenAt)}
+                        <p className="mt-0.5 text-[12px] text-[var(--text-tertiary)]">
+                          {release.environments.join(", ")} · {formatRelativeTime(release.lastSeenAt)}
                         </p>
                       </div>
                       <StatusPill value={release.health} />
                     </div>
-                    <div className="mt-4 flex flex-wrap gap-3 text-[11px] font-medium text-[var(--text-secondary)]">
-                      <span className="rounded bg-black/30 px-1.5 py-0.5 border border-white/5">{release.instances} instancia(s)</span>
-                      <span className="rounded bg-black/30 px-1.5 py-0.5 border border-white/5">{release.activeUsers} usuarios</span>
-                      <span className="rounded bg-black/30 px-1.5 py-0.5 border border-white/5">{release.pendingSync} pendencias</span>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {[
+                        `${release.instances} instância(s)`,
+                        `${release.activeUsers} usuários`,
+                        `${release.pendingSync} pendências`,
+                      ].map((chip) => (
+                        <span
+                          key={chip}
+                          className="rounded-full border border-[var(--border-default)] bg-white px-2 py-0.5 text-[11px] font-medium text-[var(--text-tertiary)]"
+                        >
+                          {chip}
+                        </span>
+                      ))}
                     </div>
                   </article>
                 ))
               ) : (
-                <div className="flex flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/[0.02] p-8 text-center xl:col-span-3 min-h-[160px]">
-                  <p className="text-sm font-medium text-white mb-1">Nenhuma release rastreada</p>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    Assim que os agentes conectarem, as versoes entrarao no radar de deploys automaticamente.
+                <div className="flex flex-col items-center justify-center rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-8 text-center xl:col-span-3 min-h-[140px]">
+                  <p className="text-[13px] font-semibold text-[var(--text-primary)]">Nenhuma release rastreada</p>
+                  <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">
+                    Assim que os agentes conectarem, as versões entrarão no radar automaticamente.
                   </p>
                 </div>
               )}
             </div>
           </SectionCard>
 
+          {/* Fleet radar */}
           <SectionCard
-            title="Radar de servicos"
-            subtitle="Cada instancia vista pelo Command Center e sua telemetria mais recente."
+            title="Radar de serviços"
+            subtitle="Cada instância vista pelo Command Center e sua telemetria mais recente."
           >
-            <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-4">
+            <div className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-4">
               {snapshot.fleet.length ? (
                 snapshot.fleet.map((node) => (
                   <article
                     key={node.id}
-                    className="rounded-3xl border border-white/8 bg-black/10 p-4"
+                    className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-4 transition-colors hover:border-[var(--border-default)] hover:bg-white"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-sm font-semibold text-white">{node.label}</p>
-                        <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                        <p className="text-[13px] font-semibold text-[var(--text-primary)]">{node.label}</p>
+                        <p className="mt-0.5 text-[12px] text-[var(--text-tertiary)]">
                           {platformLabel(node.platform)} · {node.environment}
                         </p>
                       </div>
                       <StatusPill value={node.status} />
                     </div>
-                    <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                      <div className="rounded-2xl border border-white/5 bg-black/20 p-3">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-secondary)]">
-                          versao
-                        </p>
-                        <p className="mt-1.5 font-medium text-white">{node.version}</p>
-                      </div>
-                      <div className="rounded-2xl border border-white/5 bg-black/20 p-3">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-secondary)]">
-                          uptime
-                        </p>
-                        <p className="mt-1.5 font-medium text-white">
-                          {formatPercent(node.uptimePercent)}
-                        </p>
-                      </div>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      {[
+                        { label: "versão",  value: node.version },
+                        { label: "uptime",  value: formatPercent(node.uptimePercent) },
+                      ].map((kv) => (
+                        <div
+                          key={kv.label}
+                          className="rounded-[8px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2"
+                        >
+                          <p className="label-caps">{kv.label}</p>
+                          <p className="data-value mt-1 text-[12px] font-semibold text-[var(--text-primary)]">
+                            {kv.value}
+                          </p>
+                        </div>
+                      ))}
                     </div>
-                    <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-medium text-[var(--text-secondary)]">
-                      <span className="rounded bg-black/30 px-1.5 py-0.5 border border-white/5">{node.activeUsers} usuarios ativos</span>
-                      <span className="rounded bg-black/30 px-1.5 py-0.5 border border-white/5">{node.pendingSync} pendencias</span>
-                      <span className="rounded bg-black/30 px-1.5 py-0.5 border border-white/5">visto {formatRelativeTime(node.lastSeenAt)}</span>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {[
+                        `${node.activeUsers} usuários ativos`,
+                        `${node.pendingSync} pendências`,
+                        `visto ${formatRelativeTime(node.lastSeenAt)}`,
+                      ].map((chip) => (
+                        <span
+                          key={chip}
+                          className="rounded-full border border-[var(--border-default)] bg-white px-2 py-0.5 text-[11px] font-medium text-[var(--text-tertiary)]"
+                        >
+                          {chip}
+                        </span>
+                      ))}
                     </div>
                   </article>
                 ))
               ) : (
-                <div className="flex flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/[0.02] p-8 text-center lg:col-span-2 2xl:col-span-4 min-h-[200px]">
-                  <p className="text-sm font-medium text-white mb-1">Frota offline</p>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    Nenhuma instancia ativou heartbeat na ultima janela de inspecao.
+                <div className="flex flex-col items-center justify-center rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-8 text-center lg:col-span-2 2xl:col-span-4 min-h-[160px]">
+                  <p className="text-[13px] font-semibold text-[var(--text-primary)]">Frota offline</p>
+                  <p className="mt-1 text-[12px] text-[var(--text-tertiary)]">
+                    Nenhuma instância ativou heartbeat na última janela de inspeção.
                   </p>
                 </div>
               )}

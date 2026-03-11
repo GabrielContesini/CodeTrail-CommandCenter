@@ -67,6 +67,10 @@ function toDraft(incident?: IncidentSnapshot | null): Draft {
   };
 }
 
+/** Shared input/select/textarea CSS */
+const fieldCls =
+  "w-full rounded-[10px] border border-[var(--border-default)] bg-white px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-quaternary)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/10 disabled:opacity-60 disabled:cursor-not-allowed transition-colors";
+
 export function IncidentConsole({
   incidents,
   users,
@@ -203,27 +207,26 @@ export function IncidentConsole({
 
   return (
     <div className="grid gap-6 xl:grid-cols-[0.88fr_1.12fr]">
-      <section className="rounded-[28px] border border-white/8 bg-black/10 p-5">
+      {/* Left panel — incident list */}
+      <section className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-secondary)]">
-              incidentes
-            </p>
-            <h3 className="mt-2 text-2xl font-semibold text-white">
+            <p className="label-caps">incidentes</p>
+            <h3 className="mt-2 text-[20px] font-semibold text-[var(--text-primary)]">
               Fila operacional viva
             </h3>
           </div>
           <button
             type="button"
             onClick={handleNewIncident}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--border-default)] bg-white px-4 py-2 text-[13px] font-medium text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] hover:border-[var(--accent)] transition-colors"
           >
-            <Plus size={16} />
+            <Plus size={14} />
             Novo incidente
           </button>
         </div>
 
-        <div className="mt-5 space-y-3">
+        <div className="mt-5 space-y-2">
           {incidents.length ? (
             incidents.map((incident) => {
               const active = incident.id === selectedId;
@@ -235,102 +238,101 @@ export function IncidentConsole({
                     setSelectedId(incident.id);
                     setFeedback(null);
                   }}
-                  className={`w-full rounded-[24px] border p-4 text-left ${
+                  className={`w-full rounded-[12px] border p-4 text-left transition-colors ${
                     active
-                      ? "border-[var(--accent)] bg-[rgba(0,95,115,0.24)]"
-                      : "border-white/8 bg-white/4 hover:bg-white/6"
+                      ? "border-[var(--accent)] bg-[rgba(108,99,255,0.06)]"
+                      : "border-[var(--border-subtle)] bg-[var(--bg-elevated)] hover:border-[var(--border-default)] hover:bg-white"
                   }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm font-semibold text-white">{incident.title}</p>
-                      <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                      <p className="text-[13px] font-semibold text-[var(--text-primary)]">{incident.title}</p>
+                      <p className="mt-0.5 text-[12px] text-[var(--text-tertiary)]">
                         {incident.source} · {formatRelativeTime(incident.openedAt)}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       <StatusPill value={incident.severity} />
                       <StatusPill value={incident.status} />
                     </div>
                   </div>
-                  <p className="mt-3 line-clamp-2 text-sm text-[var(--text-secondary)]">
+                  <p className="mt-3 line-clamp-2 text-[12px] text-[var(--text-secondary)]">
                     {incident.summary}
                   </p>
                 </button>
               );
             })
           ) : (
-            <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-[var(--text-secondary)]">
+            <div className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4 text-[13px] text-[var(--text-tertiary)] text-center">
               Nenhum incidente registrado ainda.
             </div>
           )}
         </div>
       </section>
 
-      <section className="rounded-[28px] border border-white/8 bg-black/10 p-5">
+      {/* Right panel — editor */}
+      <section className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-secondary)]">
-              editor
-            </p>
-            <h3 className="mt-2 text-2xl font-semibold text-white">
+            <p className="label-caps">editor</p>
+            <h3 className="mt-2 text-[20px] font-semibold text-[var(--text-primary)]">
               {selectedId === "new" ? "Registrar incidente" : "Editar incidente"}
             </h3>
-            <p className="mt-2 text-sm leading-7 text-[var(--text-secondary)]">
+            <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--text-secondary)]">
               Relacione o incidente com um usuario ou dispositivo quando o alerta exigir contexto.
             </p>
           </div>
           {selectedIncident ? (
-            <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3 text-xs text-[var(--text-secondary)]">
+            <div className="rounded-[10px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2 text-[12px] text-[var(--text-tertiary)]">
               aberto em {formatDateTime(selectedIncident.openedAt)}
             </div>
           ) : null}
         </div>
 
         {feedback ? (
-          <div className="mt-5 rounded-2xl border border-[rgba(0,95,115,0.28)] bg-[rgba(0,95,115,0.1)] px-4 py-3 text-sm text-[#d7eff4]">
+          <div className="mt-4 rounded-[10px] border border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--accent)_6%,white)] px-4 py-3 text-[13px] text-[var(--accent)]">
             {feedback}
           </div>
         ) : null}
 
         {!canEdit ? (
-          <div className="mt-5 rounded-2xl border border-[rgba(255,209,102,0.24)] bg-[rgba(255,209,102,0.08)] px-4 py-3 text-sm text-[#ffe7a6]">
+          <div className="mt-4 rounded-[10px] border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-700">
             Seu papel atual e <strong>{currentRole}</strong>. Somente owner, admin ou operator podem editar incidentes.
           </div>
         ) : null}
 
         <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
           <div className="grid gap-4 xl:grid-cols-2">
-            <label className="space-y-2 text-sm text-[var(--text-secondary)]">
-              <span>Titulo</span>
+            <label className="block space-y-1.5">
+              <span className="text-[12px] font-medium text-[var(--text-secondary)]">Titulo</span>
               <input
                 value={draft.title}
                 onChange={(event) => patchDraft({ title: event.target.value })}
                 disabled={!canEdit || saving || deleting}
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                className={fieldCls}
               />
             </label>
-            <label className="space-y-2 text-sm text-[var(--text-secondary)]">
-              <span>Origem</span>
+            <label className="block space-y-1.5">
+              <span className="text-[12px] font-medium text-[var(--text-secondary)]">Origem</span>
               <input
                 value={draft.source}
                 onChange={(event) => patchDraft({ source: event.target.value })}
                 disabled={!canEdit || saving || deleting}
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                className={fieldCls}
               />
             </label>
           </div>
 
           <div className="grid gap-4 xl:grid-cols-2">
-            <label className="space-y-2 text-sm text-[var(--text-secondary)]">
-              <span>Severidade</span>
+            <label className="block space-y-1.5">
+              <span className="text-[12px] font-medium text-[var(--text-secondary)]">Severidade</span>
               <select
                 value={draft.severity}
                 onChange={(event) =>
                   patchDraft({ severity: event.target.value as IncidentSeverity })
                 }
                 disabled={!canEdit || saving || deleting}
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                className={fieldCls}
               >
                 {severityOptions.map((option) => (
                   <option key={option} value={option}>
@@ -339,15 +341,15 @@ export function IncidentConsole({
                 ))}
               </select>
             </label>
-            <label className="space-y-2 text-sm text-[var(--text-secondary)]">
-              <span>Status</span>
+            <label className="block space-y-1.5">
+              <span className="text-[12px] font-medium text-[var(--text-secondary)]">Status</span>
               <select
                 value={draft.status}
                 onChange={(event) =>
                   patchDraft({ status: event.target.value as IncidentStatus })
                 }
                 disabled={!canEdit || saving || deleting}
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                className={fieldCls}
               >
                 {statusOptions.map((option) => (
                   <option key={option} value={option}>
@@ -359,13 +361,13 @@ export function IncidentConsole({
           </div>
 
           <div className="grid gap-4 xl:grid-cols-2">
-            <label className="space-y-2 text-sm text-[var(--text-secondary)]">
-              <span>Usuario vinculado</span>
+            <label className="block space-y-1.5">
+              <span className="text-[12px] font-medium text-[var(--text-secondary)]">Usuario vinculado</span>
               <select
                 value={draft.profileId}
                 onChange={(event) => patchDraft({ profileId: event.target.value })}
                 disabled={!canEdit || saving || deleting}
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                className={fieldCls}
               >
                 <option value="">Sem usuario vinculado</option>
                 {users.map((user) => (
@@ -375,8 +377,8 @@ export function IncidentConsole({
                 ))}
               </select>
             </label>
-            <label className="space-y-2 text-sm text-[var(--text-secondary)]">
-              <span>Dispositivo vinculado</span>
+            <label className="block space-y-1.5">
+              <span className="text-[12px] font-medium text-[var(--text-secondary)]">Dispositivo vinculado</span>
               <select
                 value={draft.instanceId}
                 onChange={(event) => {
@@ -389,7 +391,7 @@ export function IncidentConsole({
                   });
                 }}
                 disabled={!canEdit || saving || deleting}
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                className={fieldCls}
               >
                 <option value="">Sem dispositivo vinculado</option>
                 {instances.map((instance) => (
@@ -402,47 +404,47 @@ export function IncidentConsole({
           </div>
 
           <div className="grid gap-4 xl:grid-cols-2">
-            <label className="space-y-2 text-sm text-[var(--text-secondary)]">
-              <span>Plataforma</span>
+            <label className="block space-y-1.5">
+              <span className="text-[12px] font-medium text-[var(--text-secondary)]">Plataforma</span>
               <input
                 value={draft.platform}
                 onChange={(event) => patchDraft({ platform: event.target.value })}
                 disabled={!canEdit || saving || deleting}
                 placeholder="android, windows, web ou api"
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                className={fieldCls}
               />
             </label>
-            <label className="space-y-2 text-sm text-[var(--text-secondary)]">
-              <span>Versao</span>
+            <label className="block space-y-1.5">
+              <span className="text-[12px] font-medium text-[var(--text-secondary)]">Versao</span>
               <input
                 value={draft.version}
                 onChange={(event) => patchDraft({ version: event.target.value })}
                 disabled={!canEdit || saving || deleting}
                 placeholder="1.1.3+6"
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                className={fieldCls}
               />
             </label>
           </div>
 
-          <label className="block space-y-2 text-sm text-[var(--text-secondary)]">
-            <span>Resumo</span>
+          <label className="block space-y-1.5">
+            <span className="text-[12px] font-medium text-[var(--text-secondary)]">Resumo</span>
             <textarea
               rows={5}
               value={draft.summary}
               onChange={(event) => patchDraft({ summary: event.target.value })}
               disabled={!canEdit || saving || deleting}
-              className="w-full rounded-3xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+              className={fieldCls + " resize-none"}
             />
           </label>
 
-          <label className="block space-y-2 text-sm text-[var(--text-secondary)]">
-            <span>Proxima acao sugerida</span>
+          <label className="block space-y-1.5">
+            <span className="text-[12px] font-medium text-[var(--text-secondary)]">Proxima acao sugerida</span>
             <textarea
               rows={4}
               value={draft.suggestedAction}
               onChange={(event) => patchDraft({ suggestedAction: event.target.value })}
               disabled={!canEdit || saving || deleting}
-              className="w-full rounded-3xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+              className={fieldCls + " resize-none"}
             />
           </label>
 
@@ -450,7 +452,7 @@ export function IncidentConsole({
             <button
               type="submit"
               disabled={!canEdit || saving || deleting}
-              className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#005F73,#2EC5FF)] px-5 py-3 text-sm font-semibold text-[#04080B] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-5 py-2.5 text-[13px] font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 transition-opacity"
             >
               {saving ? "Salvando..." : selectedId === "new" ? "Criar incidente" : "Salvar incidente"}
             </button>
@@ -460,9 +462,9 @@ export function IncidentConsole({
                 type="button"
                 onClick={handleDelete}
                 disabled={!canEdit || saving || deleting}
-                className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,126,139,0.28)] px-4 py-3 text-sm font-semibold text-[#ffd5da] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-full border border-red-200 px-4 py-2.5 text-[13px] font-semibold text-red-500 hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 transition-colors"
               >
-                <Trash2 size={16} />
+                <Trash2 size={14} />
                 {deleting ? "Removendo..." : "Remover"}
               </button>
             ) : null}

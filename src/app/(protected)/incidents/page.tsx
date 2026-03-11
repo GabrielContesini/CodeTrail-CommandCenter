@@ -57,29 +57,29 @@ export default async function IncidentsPage() {
             snapshot.incidents.slice(0, 3).map((incident) => (
               <article
                 key={incident.id}
-                className="rounded-3xl border border-white/8 bg-black/10 p-5"
+                className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-4 transition-colors hover:border-[var(--border-default)] hover:bg-white"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-base font-semibold text-white">
+                      <p className="text-[13px] font-semibold text-[var(--text-primary)]">
                         {incident.title}
                       </p>
                       <StatusPill value={incident.severity} />
                     </div>
-                    <p className="text-xs text-[var(--text-secondary)]">
+                    <p className="text-[12px] text-[var(--text-tertiary)]">
                       {incident.source} · aberto {formatRelativeTime(incident.openedAt)}
                     </p>
                   </div>
                   <StatusPill value={incident.status} />
                 </div>
-                <p className="mt-4 text-sm text-[var(--text-secondary)]">
+                <p className="mt-3 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                   {incident.summary}
                 </p>
               </article>
             ))
           ) : (
-            <div className="rounded-3xl border border-white/8 bg-black/10 p-5 text-sm text-[var(--text-secondary)] xl:col-span-3">
+            <div className="rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-8 text-[13px] text-[var(--text-tertiary)] xl:col-span-3 text-center">
               Nenhum incidente operacional aberto no momento.
             </div>
           )}

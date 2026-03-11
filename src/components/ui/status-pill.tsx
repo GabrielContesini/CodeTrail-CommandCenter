@@ -1,43 +1,57 @@
 import { cn, statusTone } from "@/lib/utils";
 
-const toneClassMap = {
-  neutral: "border-[var(--panel-border)] bg-[var(--panel-bg)] text-[var(--text-secondary)]",
-  good: "border-[var(--success-muted)] bg-[var(--success-muted)] text-[var(--success)] glow-text-success",
-  warning: "border-[var(--warning-muted)] bg-[var(--warning-muted)] text-[var(--warning)]",
-  critical: "border-[var(--danger-muted)] bg-[var(--danger-muted)] text-[var(--danger)] glow-text-danger animate-pulse-slow",
+const labelMap: Record<string, string> = {
+  neutral:        "neutro",
+  good:           "saudável",
+  up:             "online",
+  degraded:       "degradado",
+  down:           "offline",
+  healthy:        "saudável",
+  attention:      "atenção",
+  critical:       "crítico",
+  stable:         "estável",
+  monitoring:     "monitorando",
+  needs_follow_up:"follow-up",
+  escalated:      "escalado",
+  info:           "info",
+  warning:        "alerta",
+  open:           "aberto",
+  investigating:  "investigando",
+  mitigated:      "mitigado",
+  resolved:       "resolvido",
 };
 
-const labelMap: Record<string, string> = {
-  neutral: "neutral",
-  good: "good",
-  up: "up",
-  degraded: "degraded",
-  down: "down",
-  healthy: "healthy",
-  attention: "attention",
-  critical: "critical",
-  stable: "stable",
-  monitoring: "monitoring",
-  needs_follow_up: "follow-up",
-  escalated: "escalated",
-  info: "info",
-  warning: "warning",
-  open: "open",
-  investigating: "investigating",
-  mitigated: "mitigated",
-  resolved: "resolved",
+const toneConfig = {
+  neutral: {
+    pill:  "border-[var(--border-default)] bg-white text-[var(--text-tertiary)]",
+    dot:   "bg-[var(--status-gray)]",
+  },
+  good: {
+    pill:  "border-[var(--status-green-border)] bg-[var(--status-green-bg)] text-[var(--status-green)]",
+    dot:   "bg-[var(--status-green)]",
+  },
+  warning: {
+    pill:  "border-[var(--status-yellow-border)] bg-[var(--status-yellow-bg)] text-[var(--status-yellow)]",
+    dot:   "bg-[var(--status-yellow)]",
+  },
+  critical: {
+    pill:  "border-[var(--status-red-border)] bg-[var(--status-red-bg)] text-[var(--status-red)]",
+    dot:   "bg-[var(--status-red)] animate-pulse-slow",
+  },
 };
 
 export function StatusPill({ value }: { value: string }) {
   const tone = statusTone(value as never);
+  const config = toneConfig[tone];
 
   return (
     <span
       className={cn(
-        "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em]",
-        toneClassMap[tone],
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold tracking-[0.05em] uppercase",
+        config.pill,
       )}
     >
+      <span className={cn("h-1.5 w-1.5 rounded-full flex-shrink-0", config.dot)} />
       {labelMap[value] ?? value}
     </span>
   );

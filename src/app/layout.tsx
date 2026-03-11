@@ -32,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={`${firaSans.variable} ${firaCode.variable}`}>
-      <body className="font-sans antialiased bg-black text-white selection:bg-blue-500/30">
+      <body className="font-sans antialiased bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-[var(--accent)]/20">
         <NuqsAdapter>{children}</NuqsAdapter>
       </body>
     </html>

@@ -28,6 +28,10 @@ export default async function UserDetailPage({
     notFound();
   }
 
+  /** Shared card class for all inner article/div cards */
+  const card =
+    "rounded-[14px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4";
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -47,13 +51,13 @@ export default async function UserDetailPage({
         <StatusPill value={detail.user.supportStatus} />
         <Link
           href="/users"
-          className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-white hover:bg-white/10"
+          className="inline-flex items-center justify-center rounded-full border border-[var(--border-default)] bg-white px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
         >
           Voltar para usuarios
         </Link>
         <Link
           href="/incidents"
-          className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-white hover:bg-white/10"
+          className="inline-flex items-center justify-center rounded-full border border-[var(--border-default)] bg-white px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
         >
           Abrir incidentes
         </Link>
@@ -65,35 +69,35 @@ export default async function UserDetailPage({
           subtitle="Visao de onboarding, meta principal e sinais atuais de operacao."
         >
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-3xl border border-white/8 bg-black/10 p-4">
+            <div className={card}>
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-secondary)]">
                 trilha
               </p>
-              <p className="mt-2 text-lg font-semibold text-white">
+              <p className="mt-2 text-lg font-semibold text-[var(--text-primary)]">
                 {detail.user.trackName}
               </p>
             </div>
-            <div className="rounded-3xl border border-white/8 bg-black/10 p-4">
+            <div className={card}>
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-secondary)]">
                 onboarding
               </p>
-              <p className="mt-2 text-lg font-semibold text-white">
+              <p className="mt-2 text-lg font-semibold text-[var(--text-primary)]">
                 {detail.user.onboardingCompleted ? "concluido" : "pendente"}
               </p>
             </div>
-            <div className="rounded-3xl border border-white/8 bg-black/10 p-4">
+            <div className={card}>
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-secondary)]">
                 ultima atividade
               </p>
-              <p className="mt-2 text-lg font-semibold text-white">
+              <p className="mt-2 text-lg font-semibold text-[var(--text-primary)]">
                 {formatRelativeTime(detail.user.lastSeenAt)}
               </p>
             </div>
-            <div className="rounded-3xl border border-white/8 bg-black/10 p-4">
+            <div className={card}>
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-secondary)]">
                 proxima acao
               </p>
-              <p className="mt-2 text-lg font-semibold text-white">
+              <p className="mt-2 text-lg font-semibold text-[var(--text-primary)]">
                 {detail.user.nextActionAt
                   ? formatDateTime(detail.user.nextActionAt)
                   : "sem agenda"}
@@ -102,11 +106,11 @@ export default async function UserDetailPage({
           </div>
 
           {detail.goal ? (
-            <div className="mt-5 rounded-[28px] border border-white/8 bg-black/10 p-5">
-              <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-secondary)]">
+            <div className="mt-5 rounded-[14px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5">
+              <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent)]">
                 meta principal
               </p>
-              <h3 className="mt-2 text-xl font-semibold text-white">
+              <h3 className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
                 {detail.goal.primaryGoal}
               </h3>
               <div className="mt-3 flex flex-wrap gap-3 text-xs text-[var(--text-secondary)]">
@@ -121,7 +125,7 @@ export default async function UserDetailPage({
               </p>
             </div>
           ) : (
-            <div className="mt-5 rounded-[28px] border border-white/8 bg-black/10 p-5 text-sm text-[var(--text-secondary)]">
+            <div className="mt-5 rounded-[14px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-5 text-sm text-[var(--text-secondary)]">
               Nenhuma meta estruturada foi registrada para este usuario ainda.
             </div>
           )}
@@ -148,20 +152,17 @@ export default async function UserDetailPage({
               <div className="mt-3 space-y-3">
                 {detail.recentSessions.length ? (
                   detail.recentSessions.map((session) => (
-                    <article
-                      key={session.id}
-                      className="rounded-[24px] border border-white/8 bg-white/4 p-4"
-                    >
+                    <article key={session.id} className={card}>
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <p className="text-sm font-semibold text-white">
+                          <p className="text-sm font-semibold text-[var(--text-primary)]">
                             {session.type}
                           </p>
                           <p className="mt-1 text-xs text-[var(--text-secondary)]">
                             {formatDateTime(session.startTime)} · {formatDurationMinutes(session.durationMinutes)}
                           </p>
                         </div>
-                        <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--accent-secondary)]">
+                        <div className="rounded-full border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--accent)]">
                           produtividade {session.productivityScore}/5
                         </div>
                       </div>
@@ -173,7 +174,7 @@ export default async function UserDetailPage({
                     </article>
                   ))
                 ) : (
-                  <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-[var(--text-secondary)]">
+                  <div className={card + " text-sm text-[var(--text-secondary)]"}>
                     Nenhuma sessao recente encontrada.
                   </div>
                 )}
@@ -188,12 +189,9 @@ export default async function UserDetailPage({
                 <div className="mt-3 space-y-3">
                   {detail.recentTasks.length ? (
                     detail.recentTasks.map((task) => (
-                      <article
-                        key={task.id}
-                        className="rounded-[24px] border border-white/8 bg-white/4 p-4"
-                      >
+                      <article key={task.id} className={card}>
                         <div className="flex flex-wrap items-start justify-between gap-3">
-                          <p className="text-sm font-semibold text-white">{task.title}</p>
+                          <p className="text-sm font-semibold text-[var(--text-primary)]">{task.title}</p>
                           <StatusPill value={task.status} />
                         </div>
                         <p className="mt-2 text-xs text-[var(--text-secondary)]">
@@ -203,7 +201,7 @@ export default async function UserDetailPage({
                       </article>
                     ))
                   ) : (
-                    <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-[var(--text-secondary)]">
+                    <div className={card + " text-sm text-[var(--text-secondary)]"}>
                       Nenhuma tarefa recente.
                     </div>
                   )}
@@ -216,12 +214,9 @@ export default async function UserDetailPage({
                 </p>
                 <div className="mt-3 space-y-3">
                   {detail.recentReviews.map((review) => (
-                    <article
-                      key={review.id}
-                      className="rounded-[24px] border border-white/8 bg-white/4 p-4"
-                    >
+                    <article key={review.id} className={card}>
                       <div className="flex flex-wrap items-start justify-between gap-3">
-                        <p className="text-sm font-semibold text-white">{review.title}</p>
+                        <p className="text-sm font-semibold text-[var(--text-primary)]">{review.title}</p>
                         <StatusPill value={review.status} />
                       </div>
                       <p className="mt-2 text-xs text-[var(--text-secondary)]">
@@ -230,18 +225,15 @@ export default async function UserDetailPage({
                     </article>
                   ))}
                   {detail.recentNotes.map((note) => (
-                    <article
-                      key={note.id}
-                      className="rounded-[24px] border border-white/8 bg-white/4 p-4"
-                    >
-                      <p className="text-sm font-semibold text-white">{note.title}</p>
+                    <article key={note.id} className={card}>
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">{note.title}</p>
                       <p className="mt-2 text-xs text-[var(--text-secondary)]">
                         {note.folderName} · {formatRelativeTime(note.updatedAt)}
                       </p>
                     </article>
                   ))}
                   {!detail.recentReviews.length && !detail.recentNotes.length ? (
-                    <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-[var(--text-secondary)]">
+                    <div className={card + " text-sm text-[var(--text-secondary)]"}>
                       Nenhuma revisao ou nota recente.
                     </div>
                   ) : null}
@@ -263,13 +255,10 @@ export default async function UserDetailPage({
               <div className="mt-3 space-y-3">
                 {detail.linkedInstances.length ? (
                   detail.linkedInstances.map((instance) => (
-                    <article
-                      key={instance.id}
-                      className="rounded-[24px] border border-white/8 bg-white/4 p-4"
-                    >
+                    <article key={instance.id} className={card}>
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <p className="text-sm font-semibold text-white">{instance.label}</p>
+                          <p className="text-sm font-semibold text-[var(--text-primary)]">{instance.label}</p>
                           <p className="mt-1 text-xs text-[var(--text-secondary)]">
                             {platformLabel(instance.platform)} · {instance.environment} · versao {instance.version}
                           </p>
@@ -282,7 +271,7 @@ export default async function UserDetailPage({
                     </article>
                   ))
                 ) : (
-                  <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-[var(--text-secondary)]">
+                  <div className={card + " text-sm text-[var(--text-secondary)]"}>
                     Nenhum dispositivo vinculado a este usuario ainda.
                   </div>
                 )}
@@ -296,13 +285,10 @@ export default async function UserDetailPage({
               <div className="mt-3 space-y-3">
                 {detail.relatedIncidents.length ? (
                   detail.relatedIncidents.map((incident) => (
-                    <article
-                      key={incident.id}
-                      className="rounded-[24px] border border-white/8 bg-white/4 p-4"
-                    >
+                    <article key={incident.id} className={card}>
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <p className="text-sm font-semibold text-white">{incident.title}</p>
+                          <p className="text-sm font-semibold text-[var(--text-primary)]">{incident.title}</p>
                           <p className="mt-1 text-xs text-[var(--text-secondary)]">
                             {incident.source} · {formatRelativeTime(incident.openedAt)}
                           </p>
@@ -318,7 +304,7 @@ export default async function UserDetailPage({
                     </article>
                   ))
                 ) : (
-                  <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-[var(--text-secondary)]">
+                  <div className={card + " text-sm text-[var(--text-secondary)]"}>
                     Nenhum incidente explicitamente vinculado a este usuario.
                   </div>
                 )}
@@ -334,13 +320,10 @@ export default async function UserDetailPage({
       >
         <div className="space-y-3">
           {detail.timeline.map((entry) => (
-            <article
-              key={entry.id}
-              className="rounded-[24px] border border-white/8 bg-white/4 p-4"
-            >
+            <article key={entry.id} className={card}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-white">{entry.title}</p>
+                  <p className="text-sm font-semibold text-[var(--text-primary)]">{entry.title}</p>
                   <p className="mt-1 text-xs text-[var(--text-secondary)]">
                     {entry.kind} · {formatDateTime(entry.happenedAt)}
                   </p>

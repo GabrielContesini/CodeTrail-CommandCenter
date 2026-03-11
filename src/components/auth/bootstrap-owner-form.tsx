@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, LoaderCircle, ShieldCheck } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
+/* ─── shared field style ─────────────────────────────────────────────────── */
+const inputCls =
+  "w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-placeholder)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)]";
+
 export function BootstrapOwnerForm() {
   const router = useRouter();
   const [displayName, setDisplayName] = useState("");
@@ -22,14 +26,8 @@ export function BootstrapOwnerForm() {
     try {
       const response = await fetch("/api/bootstrap/owner", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          displayName,
-          email,
-          password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ displayName, email, password }),
       });
 
       const result = (await response.json()) as {
@@ -48,17 +46,13 @@ export function BootstrapOwnerForm() {
         password,
       });
 
-      if (signInError) {
-        throw signInError;
-      }
+      if (signInError) throw signInError;
 
       router.replace("/");
       router.refresh();
     } catch (cause) {
       setError(
-        cause instanceof Error
-          ? cause.message
-          : "Falha ao bootstrapar o primeiro owner.",
+        cause instanceof Error ? cause.message : "Falha ao bootstrapar o primeiro owner.",
       );
     } finally {
       setLoading(false);
@@ -67,13 +61,18 @@ export function BootstrapOwnerForm() {
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
-      <div className="rounded-2xl border border-[rgba(53,211,154,0.24)] bg-[rgba(53,211,154,0.08)] px-4 py-3 text-sm text-[#d9fff2]">
+      {/* Info banner */}
+      <div className="rounded-2xl border border-[var(--status-green-border)] bg-[var(--status-green-bg)] px-4 py-3 text-sm text-[var(--status-green)]">
         Nenhum owner foi encontrado. Cadastre agora a primeira conta
         administrativa do Command Center.
       </div>
 
+      {/* Nome */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-white" htmlFor="bootstrap-display-name">
+        <label
+          className="text-sm font-medium text-[var(--text-secondary)]"
+          htmlFor="bootstrap-display-name"
+        >
           Nome
         </label>
         <input
@@ -83,13 +82,17 @@ export function BootstrapOwnerForm() {
           required
           value={displayName}
           onChange={(event) => setDisplayName(event.target.value)}
-          className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(0,95,115,0.24)]"
+          className={inputCls}
           placeholder="Gabriel Contesini"
         />
       </div>
 
+      {/* E-mail */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-white" htmlFor="bootstrap-email">
+        <label
+          className="text-sm font-medium text-[var(--text-secondary)]"
+          htmlFor="bootstrap-email"
+        >
           E-mail
         </label>
         <input
@@ -99,13 +102,17 @@ export function BootstrapOwnerForm() {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(0,95,115,0.24)]"
+          className={inputCls}
           placeholder="owner@codetrail.app"
         />
       </div>
 
+      {/* Senha */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-white" htmlFor="bootstrap-password">
+        <label
+          className="text-sm font-medium text-[var(--text-secondary)]"
+          htmlFor="bootstrap-password"
+        >
           Senha
         </label>
         <div className="relative">
@@ -117,13 +124,13 @@ export function BootstrapOwnerForm() {
             minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 pr-12 text-sm text-white outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[rgba(0,95,115,0.24)]"
+            className={`${inputCls} pr-12`}
             placeholder="Crie uma senha forte"
           />
           <button
             type="button"
             onClick={() => setShowPassword((current) => !current)}
-            className="absolute inset-y-0 right-3 inline-flex items-center text-[var(--text-secondary)] hover:text-white"
+            className="absolute inset-y-0 right-3 inline-flex items-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
             aria-label={showPassword ? "Ocultar senha" : "Exibir senha"}
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -131,22 +138,20 @@ export function BootstrapOwnerForm() {
         </div>
       </div>
 
+      {/* Error banner */}
       {error ? (
-        <div className="rounded-2xl border border-[rgba(255,126,139,0.24)] bg-[rgba(255,126,139,0.08)] px-4 py-3 text-sm text-[#ffd5da]">
+        <div className="rounded-2xl border border-[var(--status-red-border)] bg-[var(--status-red-bg)] px-4 py-3 text-sm text-[var(--status-red)]">
           {error}
         </div>
       ) : null}
 
+      {/* Submit */}
       <button
         type="submit"
         disabled={loading}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#005F73,#2EC5FF)] px-5 py-3 text-sm font-semibold text-[#04080B] disabled:cursor-not-allowed disabled:opacity-70"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-mid)] transition-colors disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {loading ? (
-          <LoaderCircle className="animate-spin" size={18} />
-        ) : (
-          <ShieldCheck size={18} />
-        )}
+        {loading ? <LoaderCircle className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
         Criar primeiro owner
       </button>
     </form>

@@ -1,6 +1,14 @@
 type MetaItem = {
   label: string;
   value: string;
+  tone?: "neutral" | "good" | "warning" | "critical";
+};
+
+const metaToneConfig = {
+  neutral: "border-[var(--border-subtle)] bg-[var(--bg-inset)] text-[var(--text-primary)]",
+  good:    "border-[var(--status-green-border)] bg-[var(--status-green-bg)] text-[var(--text-primary)]",
+  warning: "border-[var(--status-yellow-border)] bg-[var(--status-yellow-bg)] text-[var(--text-primary)]",
+  critical:"border-[var(--status-red-border)] bg-[var(--status-red-bg)] text-[var(--text-primary)]",
 };
 
 export function PageHeader({
@@ -15,37 +23,39 @@ export function PageHeader({
   meta?: MetaItem[];
 }) {
   return (
-    <header className="oled-panel flex flex-col justify-between rounded-[20px] px-6 py-6 sm:px-8">
-      <div>
-        <p className="text-[10px] uppercase font-bold tracking-[0.25em] text-[var(--primary)]">
-          {eyebrow}
-        </p>
-        <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] xl:items-center">
-          <div>
-            <h1 className="max-w-4xl text-[1.8rem] font-bold leading-[1.1] tracking-tight text-white sm:text-[2.2rem]">
-              {title}
-            </h1>
-            <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--text-secondary)]">
-              {description}
-            </p>
-          </div>
+    <header className="mb-7">
+      {/* Eyebrow */}
+      <p className="label-caps mb-2">{eyebrow}</p>
 
-          {meta.length ? (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {meta.map((item) => (
+      {/* Title + meta grid */}
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(280px,380px)] xl:items-start">
+        <div>
+          <h1 className="text-[1.6rem] font-bold leading-[1.15] tracking-[-0.028em] text-[var(--text-primary)] sm:text-[1.9rem]">
+            {title}
+          </h1>
+          <p className="mt-2 max-w-xl text-[14px] leading-[1.6] text-[var(--text-secondary)]">
+            {description}
+          </p>
+        </div>
+
+        {meta.length ? (
+          <div className="grid grid-cols-2 gap-3">
+            {meta.map((item) => {
+              const toneClass = metaToneConfig[item.tone ?? "neutral"];
+              return (
                 <div
                   key={item.label}
-                  className="flex min-h-[88px] flex-col justify-between rounded-[16px] border border-[var(--panel-border)] bg-[var(--panel-bg)] p-4 transition-colors hover:border-[rgba(255,255,255,0.15)]"
+                  className={`flex flex-col justify-between rounded-[12px] border px-4 py-3 transition-colors ${toneClass}`}
                 >
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-                    {item.label}
+                  <p className="label-caps">{item.label}</p>
+                  <p className="data-value mt-2 text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
+                    {item.value}
                   </p>
-                  <p className="data-value mt-2 text-[15px] font-semibold text-white tracking-tight">{item.value}</p>
                 </div>
-              ))}
-            </div>
-          ) : null}
-        </div>
+              );
+            })}
+          </div>
+        ) : null}
       </div>
     </header>
   );

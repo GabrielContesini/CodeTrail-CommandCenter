@@ -7,6 +7,16 @@ import { formatDateTime, formatRelativeTime } from "@/lib/utils";
 
 const roleOptions: AdminRole[] = ["owner", "admin", "operator", "viewer"];
 
+/* ─── shared input / select style ─────────────────────────────────────────── */
+const inputCls =
+  "w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-placeholder)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)] disabled:opacity-60";
+
+/* ─── button styles ────────────────────────────────────────────────────────── */
+const btnPrimary =
+  "inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-mid)] transition-colors disabled:cursor-not-allowed disabled:opacity-60";
+const btnDanger =
+  "inline-flex items-center justify-center rounded-full border border-[var(--status-red-border)] px-4 py-3 text-sm font-semibold text-[var(--status-red)] hover:bg-[var(--status-red-bg)] transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+
 export function AdminMembersWorkspace({
   members,
   audit,
@@ -54,9 +64,7 @@ export function AdminMembersWorkspace({
 
   async function handleCreate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!canManageMembers) {
-      return;
-    }
+    if (!canManageMembers) return;
 
     setCreating(true);
     setFeedback(null);
@@ -65,14 +73,8 @@ export function AdminMembersWorkspace({
       try {
         const response = await fetch("/api/admin/members", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            displayName,
-            role,
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, displayName, role }),
         });
 
         const result = (await response.json()) as { ok?: boolean; message?: string };
@@ -87,9 +89,7 @@ export function AdminMembersWorkspace({
         router.refresh();
       } catch (error) {
         setFeedback(
-          error instanceof Error
-            ? error.message
-            : "Falha ao conceder acesso administrativo.",
+          error instanceof Error ? error.message : "Falha ao conceder acesso administrativo.",
         );
       } finally {
         setCreating(false);
@@ -98,14 +98,10 @@ export function AdminMembersWorkspace({
   }
 
   function handleMemberSave(memberId: string) {
-    if (!canManageMembers) {
-      return;
-    }
+    if (!canManageMembers) return;
 
     const draft = drafts[memberId];
-    if (!draft) {
-      return;
-    }
+    if (!draft) return;
 
     setSavingId(memberId);
     setFeedback(null);
@@ -114,9 +110,7 @@ export function AdminMembersWorkspace({
       try {
         const response = await fetch(`/api/admin/members/${memberId}`, {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(draft),
         });
 
@@ -128,9 +122,7 @@ export function AdminMembersWorkspace({
         setFeedback("Papel administrativo atualizado.");
         router.refresh();
       } catch (error) {
-        setFeedback(
-          error instanceof Error ? error.message : "Falha ao atualizar o membro.",
-        );
+        setFeedback(error instanceof Error ? error.message : "Falha ao atualizar o membro.");
       } finally {
         setSavingId(null);
       }
@@ -138,18 +130,14 @@ export function AdminMembersWorkspace({
   }
 
   function handleMemberDelete(memberId: string) {
-    if (!canManageMembers) {
-      return;
-    }
+    if (!canManageMembers) return;
 
     setSavingId(memberId);
     setFeedback(null);
 
     startTransition(async () => {
       try {
-        const response = await fetch(`/api/admin/members/${memberId}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(`/api/admin/members/${memberId}`, { method: "DELETE" });
 
         const result = (await response.json()) as { ok?: boolean; message?: string };
         if (!response.ok || !result.ok) {
@@ -159,9 +147,7 @@ export function AdminMembersWorkspace({
         setFeedback("Acesso administrativo removido.");
         router.refresh();
       } catch (error) {
-        setFeedback(
-          error instanceof Error ? error.message : "Falha ao remover o membro.",
-        );
+        setFeedback(error instanceof Error ? error.message : "Falha ao remover o membro.");
       } finally {
         setSavingId(null);
       }
@@ -171,13 +157,17 @@ export function AdminMembersWorkspace({
   return (
     <div className="space-y-6">
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <section className="rounded-[28px] border border-white/8 bg-black/10 p-5">
+        {/* ── Membros ─────────────────────────────────────────────────────── */}
+        <section
+          className="rounded-[28px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-5"
+          style={{ boxShadow: "var(--shadow-card)" }}
+        >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-secondary)]">
+              <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-mid)]">
                 Membros administrativos
               </p>
-              <h3 className="mt-2 text-2xl font-semibold text-white">
+              <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
                 Controle de acesso do painel
               </h3>
               <p className="mt-2 text-sm leading-7 text-[var(--text-secondary)]">
@@ -185,13 +175,13 @@ export function AdminMembersWorkspace({
                 que o painel vire uma area sem dono.
               </p>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3 text-sm text-[var(--text-secondary)]">
+            <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] px-4 py-3 text-sm text-[var(--text-secondary)]">
               {ownerCount} owner(s) · {members.length} membro(s)
             </div>
           </div>
 
           {feedback ? (
-            <div className="mt-5 rounded-2xl border border-[rgba(0,95,115,0.28)] bg-[rgba(0,95,115,0.1)] px-4 py-3 text-sm text-[#d7eff4]">
+            <div className="mt-5 rounded-2xl border border-[var(--status-green-border)] bg-[var(--status-green-bg)] px-4 py-3 text-sm text-[var(--status-green)]">
               {feedback}
             </div>
           ) : null}
@@ -210,17 +200,18 @@ export function AdminMembersWorkspace({
               return (
                 <article
                   key={member.id}
-                  className="rounded-[24px] border border-white/8 bg-white/4 p-4"
+                  className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4"
+                  style={{ boxShadow: "var(--shadow-card)" }}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm font-semibold text-white">
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">
                         {member.displayName}
                       </p>
                       <p className="mt-1 text-xs text-[var(--text-secondary)]">
                         {member.email}
                       </p>
-                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-[var(--text-secondary)]">
+                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-[var(--text-tertiary)]">
                         <span>criado em {formatDateTime(member.createdAt)}</span>
                         <span>
                           ultimo acesso{" "}
@@ -231,7 +222,7 @@ export function AdminMembersWorkspace({
                         {isSelf ? <span>esta conta e a sua</span> : null}
                       </div>
                     </div>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--accent-secondary)]">
+                    <span className="rounded-full border border-[var(--accent-glow)] bg-[var(--accent-light)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--accent)]">
                       {member.role}
                     </span>
                   </div>
@@ -243,17 +234,15 @@ export function AdminMembersWorkspace({
                         updateDraft(member.id, { displayName: event.target.value })
                       }
                       disabled={!canManageMembers || isSaving}
-                      className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                      className={inputCls}
                     />
                     <select
                       value={draft.role}
                       onChange={(event) =>
-                        updateDraft(member.id, {
-                          role: event.target.value as AdminRole,
-                        })
+                        updateDraft(member.id, { role: event.target.value as AdminRole })
                       }
                       disabled={!canManageMembers || isSaving}
-                      className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                      className={inputCls}
                     >
                       {roleOptions.map((option) => (
                         <option key={option} value={option}>
@@ -266,7 +255,7 @@ export function AdminMembersWorkspace({
                         type="button"
                         disabled={!canManageMembers || isSaving || ownerLock}
                         onClick={() => handleMemberSave(member.id)}
-                        className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#005F73,#2EC5FF)] px-4 py-3 text-sm font-semibold text-[#04080B] disabled:cursor-not-allowed disabled:opacity-60"
+                        className={btnPrimary}
                       >
                         {isSaving ? "Salvando..." : "Salvar"}
                       </button>
@@ -274,7 +263,7 @@ export function AdminMembersWorkspace({
                         type="button"
                         disabled={!canManageMembers || isSaving || isSelf}
                         onClick={() => handleMemberDelete(member.id)}
-                        className="inline-flex items-center justify-center rounded-full border border-[rgba(255,126,139,0.28)] px-4 py-3 text-sm font-semibold text-[#ffd5da] disabled:cursor-not-allowed disabled:opacity-50"
+                        className={btnDanger}
                       >
                         Remover
                       </button>
@@ -282,7 +271,7 @@ export function AdminMembersWorkspace({
                   </div>
 
                   {ownerLock ? (
-                    <p className="mt-3 text-xs text-[#ffe7a6]">
+                    <p className="mt-3 text-xs text-[var(--status-yellow)]">
                       Este owner so pode ser alterado quando existir pelo menos mais um owner ativo.
                     </p>
                   ) : null}
@@ -292,11 +281,15 @@ export function AdminMembersWorkspace({
           </div>
         </section>
 
-        <section className="rounded-[28px] border border-white/8 bg-black/10 p-5">
-          <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-secondary)]">
+        {/* ── Novo operador ────────────────────────────────────────────────── */}
+        <section
+          className="rounded-[28px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-5"
+          style={{ boxShadow: "var(--shadow-card)" }}
+        >
+          <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-mid)]">
             Conceder acesso
           </p>
-          <h3 className="mt-2 text-2xl font-semibold text-white">
+          <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
             Novo operador
           </h3>
           <p className="mt-2 text-sm leading-7 text-[var(--text-secondary)]">
@@ -304,14 +297,14 @@ export function AdminMembersWorkspace({
           </p>
 
           {!canManageMembers ? (
-            <div className="mt-5 rounded-2xl border border-[rgba(255,209,102,0.24)] bg-[rgba(255,209,102,0.08)] px-4 py-3 text-sm text-[#ffe7a6]">
+            <div className="mt-5 rounded-2xl border border-[var(--status-yellow-border)] bg-[var(--status-yellow-bg)] px-4 py-3 text-sm text-[var(--status-yellow)]">
               Seu papel atual e <strong>{currentRole}</strong>. Somente um owner pode
               conceder ou remover acesso administrativo.
             </div>
           ) : null}
 
           <form className="mt-5 space-y-4" onSubmit={handleCreate}>
-            <label className="block space-y-2 text-sm text-[var(--text-secondary)]">
+            <label className="block space-y-2 text-sm font-medium text-[var(--text-secondary)]">
               <span>E-mail da conta existente</span>
               <input
                 type="email"
@@ -319,11 +312,11 @@ export function AdminMembersWorkspace({
                 onChange={(event) => setEmail(event.target.value)}
                 disabled={!canManageMembers || creating}
                 placeholder="admin@codetrail.app"
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                className={inputCls}
               />
             </label>
 
-            <label className="block space-y-2 text-sm text-[var(--text-secondary)]">
+            <label className="block space-y-2 text-sm font-medium text-[var(--text-secondary)]">
               <span>Nome de exibicao</span>
               <input
                 type="text"
@@ -331,17 +324,17 @@ export function AdminMembersWorkspace({
                 onChange={(event) => setDisplayName(event.target.value)}
                 disabled={!canManageMembers || creating}
                 placeholder="Nome opcional para o operador"
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                className={inputCls}
               />
             </label>
 
-            <label className="block space-y-2 text-sm text-[var(--text-secondary)]">
+            <label className="block space-y-2 text-sm font-medium text-[var(--text-secondary)]">
               <span>Papel</span>
               <select
                 value={role}
                 onChange={(event) => setRole(event.target.value as AdminRole)}
                 disabled={!canManageMembers || creating}
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)] disabled:opacity-60"
+                className={inputCls}
               >
                 {roleOptions.map((option) => (
                   <option key={option} value={option}>
@@ -354,7 +347,7 @@ export function AdminMembersWorkspace({
             <button
               type="submit"
               disabled={!canManageMembers || creating}
-              className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#005F73,#2EC5FF)] px-5 py-3 text-sm font-semibold text-[#04080B] disabled:cursor-not-allowed disabled:opacity-60"
+              className={btnPrimary}
             >
               {creating ? "Concedendo acesso..." : "Conceder acesso"}
             </button>
@@ -362,13 +355,17 @@ export function AdminMembersWorkspace({
         </section>
       </div>
 
-      <section className="rounded-[28px] border border-white/8 bg-black/10 p-5">
+      {/* ── Auditoria ──────────────────────────────────────────────────────── */}
+      <section
+        className="rounded-[28px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-5"
+        style={{ boxShadow: "var(--shadow-card)" }}
+      >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-secondary)]">
+            <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-mid)]">
               Auditoria
             </p>
-            <h3 className="mt-2 text-2xl font-semibold text-white">
+            <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
               Ultimas acoes administrativas
             </h3>
           </div>
@@ -379,25 +376,25 @@ export function AdminMembersWorkspace({
             audit.map((entry) => (
               <article
                 key={entry.id}
-                className="rounded-[24px] border border-white/8 bg-white/4 p-4"
+                className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-sm font-semibold text-[var(--text-primary)]">
                       {entry.summary}
                     </p>
                     <p className="mt-1 text-xs text-[var(--text-secondary)]">
                       {entry.actorLabel} · {formatDateTime(entry.createdAt)}
                     </p>
                   </div>
-                  <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--text-secondary)]">
+                  <div className="rounded-full border border-[var(--border-default)] bg-[var(--bg-inset)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--text-secondary)]">
                     {entry.action}
                   </div>
                 </div>
               </article>
             ))
           ) : (
-            <div className="rounded-[24px] border border-white/8 bg-white/4 p-4 text-sm text-[var(--text-secondary)]">
+            <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4 text-sm text-[var(--text-secondary)]">
               Nenhuma acao administrativa registrada ainda.
             </div>
           )}

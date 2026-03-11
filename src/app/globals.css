@@ -1,140 +1,271 @@
 @import "tailwindcss";
 
-/* OLED Data-Intensive Design System (UI/UX Pro Max) */
+/* ─────────────────────────────────────────────────────────────────────────
+   CodeTrail Command Center — macOS Liquid Clean Design System
+   Aesthetic: macOS 15 Sequoia × Editorial Utility
+   Fonts: Geist (display) + Geist Mono (data)
+   DFII: 13/15
+───────────────────────────────────────────────────────────────────────── */
+
 @theme {
-  --font-sans: var(--font-fira-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-fira-code), ui-monospace, SFMono-Regular, monospace;
+  --font-sans: var(--font-geist-sans), "SF Pro Display", ui-sans-serif, -apple-system, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "SF Mono", ui-monospace, monospace;
 }
 
 @layer base {
   :root {
-    /* OLED Core - Deep space black */
-    --background: #000000;
-    --panel-bg: #050505;
-    --panel-border: rgba(255, 255, 255, 0.08);
+    /* ── Canvas ── */
+    --bg-base:          #F2F2F7;  /* macOS system background */
+    --bg-elevated:      #FFFFFF;  /* cards & panels */
+    --bg-overlay:       rgba(255, 255, 255, 0.78); /* frosted glass */
+    --bg-inset:         #E5E5EA;  /* inset well */
+    --bg-hover:         rgba(0, 0, 0, 0.04);
 
-    /* Typography */
-    --text-primary: #F8FAFC;
-    --text-secondary: #94A3B8;
-    --text-muted: #475569;
+    /* ── Borders ── */
+    --border-subtle:    rgba(0, 0, 0, 0.07);
+    --border-default:   rgba(0, 0, 0, 0.11);
+    --border-strong:    rgba(0, 0, 0, 0.18);
 
-    /* Semantic Identity */
-    --primary: #3B82F6; /* Trust Blue */
-    --primary-muted: rgba(59, 130, 246, 0.15);
+    /* ── Typography ── */
+    --text-primary:     #1C1C1E;  /* macOS label */
+    --text-secondary:   #3C3C43;  /* secondaryLabel */
+    --text-tertiary:    #8E8E93;  /* tertiaryLabel */
+    --text-quaternary:  #AEAEB2;  /* quaternaryLabel */
+    --text-placeholder: #C7C7CC;
 
-    --cta: #F97316; /* Telemetry Orange */
-    --cta-muted: rgba(249, 115, 22, 0.15);
+    /* ── Brand Accent (indigo-ish) ── */
+    --accent:           #3634C0;  /* deep system blue */
+    --accent-mid:       #5856D6;  /* macOS indigo */
+    --accent-light:     rgba(88, 86, 214, 0.10);
+    --accent-glow:      rgba(88, 86, 214, 0.18);
 
-    /* Telemetry Statuses */
-    --success: #10B981;
-    --success-muted: rgba(16, 185, 129, 0.12);
+    /* ── Semantic states ── */
+    --status-green:     #34C759;  /* systemGreen */
+    --status-green-bg:  rgba(52, 199, 89, 0.10);
+    --status-green-border: rgba(52, 199, 89, 0.24);
 
-    --warning: #F59E0B;
-    --warning-muted: rgba(245, 158, 11, 0.12);
+    --status-yellow:    #FF9F0A;  /* systemOrange */
+    --status-yellow-bg: rgba(255, 159, 10, 0.10);
+    --status-yellow-border: rgba(255, 159, 10, 0.24);
 
-    --danger: #EF4444;
-    --danger-muted: rgba(239, 68, 68, 0.12);
+    --status-red:       #FF3B30;  /* systemRed */
+    --status-red-bg:    rgba(255, 59, 48, 0.10);
+    --status-red-border: rgba(255, 59, 48, 0.24);
 
-    --neutral: #64748B;
-    --neutral-muted: rgba(100, 116, 139, 0.15);
+    --status-gray:      #8E8E93;
+    --status-gray-bg:   rgba(142, 142, 147, 0.10);
+    --status-gray-border: rgba(142, 142, 147, 0.24);
+
+    /* ── Sidebar ── */
+    --sidebar-bg:       rgba(246, 246, 248, 0.94);
+    --sidebar-border:   var(--border-subtle);
+    --sidebar-width:    248px;
+
+    /* ── Shadows (depth narrative) ── */
+    --shadow-card:      0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.05);
+    --shadow-panel:     0 0 0 1px var(--border-subtle), var(--shadow-card);
+    --shadow-raised:    0 2px 8px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.06);
+    --shadow-overlay:   0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px var(--border-subtle);
+
+    /* ── Radius system ── */
+    --radius-sm:   8px;
+    --radius-md:   12px;
+    --radius-lg:   16px;
+    --radius-xl:   20px;
+    --radius-full: 9999px;
   }
 }
 
 @layer base {
   * {
-    border-color: var(--panel-border);
+    box-sizing: border-box;
+    border-color: var(--border-default);
   }
-  body {
-    background-color: var(--background);
-    color: var(--text-primary);
+
+  html {
+    font-size: 15px;
+    text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+  }
+
+  input, select, textarea, option {
+    color: var(--text-primary);
+    background-color: var(--bg-elevated);
+    font-family: inherit;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.022em;
+  }
 }
 
-/* Utilities for OLED Terminal Aesthetic */
+/* ─────────────────────────────────────────────────────
+   UTILITY CLASSES
+───────────────────────────────────────────────────── */
 @layer utilities {
-  .subtle-grid {
-    background-image:
-      linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
-    background-size: 32px 32px;
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+
+  /* Surface: the main card/panel primitive */
+  .surface {
+    background-color: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-card);
   }
 
-  .oled-panel {
-    background-color: var(--panel-bg);
-    border: 1px solid var(--panel-border);
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  .surface-inset {
+    background-color: var(--bg-base);
+    border: 1px solid var(--border-subtle);
   }
 
-  /* Soft glowing edges instead of hard shadows */
-  .oled-panel:hover {
-    border-color: rgba(255, 255, 255, 0.15);
+  /* Frosted glass (sidebar, topbar) */
+  .glass {
+    background-color: var(--bg-overlay);
+    backdrop-filter: blur(20px) saturate(200%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    border: 1px solid var(--border-subtle);
   }
 
-  /* Data points styling */
+  /* Data typography — tabular, mono */
   .data-value {
-    font-family: var(--font-fira-code);
-    letter-spacing: -0.02em;
+    font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
+    letter-spacing: -0.024em;
   }
 
-  /* Telemetry glows */
-  .glow-text-primary {
-    text-shadow: 0 0 12px var(--primary-muted);
+  /* Eyebrow label — macOS small-caps style */
+  .label-caps {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
   }
-  .glow-text-success {
-    text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+
+  /* Accent dot indicator */
+  .dot-green  { @apply inline-block h-1.5 w-1.5 rounded-full bg-[var(--status-green)]; }
+  .dot-yellow { @apply inline-block h-1.5 w-1.5 rounded-full bg-[var(--status-yellow)]; }
+  .dot-red    { @apply inline-block h-1.5 w-1.5 rounded-full bg-[var(--status-red)]; }
+  .dot-gray   { @apply inline-block h-1.5 w-1.5 rounded-full bg-[var(--status-gray)]; }
+
+  /* Nav item active gradient */
+  .nav-active {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(88,86,214,0.28);
   }
-  .glow-text-danger {
-    text-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+
+  /* Subtle top-border accent line */
+  .accent-stripe::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 16px; right: 16px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-mid) 100%);
+    border-radius: 0 0 2px 2px;
+  }
+
+  /* Metric progress bar */
+  .progress-bar-track {
+    background-color: var(--bg-inset);
+    height: 3px;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-mid) 100%);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Hover lift */
+  .hover-lift {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-raised);
+  }
+
+  /* ── Animations ── */
+  .animate-enter-up {
+    animation: enter-up 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
 
   .animate-pulse-slow {
-    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation: pulse-status 2.4s ease-in-out infinite;
   }
 
-  .animate-enter-up {
-    animation: enter-up 0.5s ease-out both;
+  .animate-fade-in {
+    animation: fade-in 0.3s ease both;
   }
 }
 
-@keyframes pulse-slow {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.05);
-  }
-}
-
+/* ─────────────────────────────────────────────────────
+   KEYFRAMES
+───────────────────────────────────────────────────── */
 @keyframes enter-up {
   from {
     opacity: 0;
-    transform: translateY(1rem);
+    transform: translateY(12px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-/* Custom Scrollbar for OLED */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulse-status {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ─────────────────────────────────────────────────────
+   SCROLLBAR — thin, macOS-style
+───────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.14);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+/* ─────────────────────────────────────────────────────
+   LEGACY CLASS BRIDGE (removes hard colour refs in
+   existing components that reference old token names)
+───────────────────────────────────────────────────── */
+@layer utilities {
+  /* Keep old .oled-panel working while we update per-component */
+  .oled-panel {
+    background-color: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-card);
+  }
+}
+
+/* ─────────────────────────────────────────────────────
+   SELECT STYLING
+───────────────────────────────────────────────────── */
+select option {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
 }
