@@ -1,71 +1,85 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────────────────
-   CodeTrail Command Center — macOS Liquid Clean Design System
-   Aesthetic: macOS 15 Sequoia × Editorial Utility
-   Fonts: Geist (display) + Geist Mono (data)
-   DFII: 13/15
+   CodeTrail Command Center — Cyber Dark Premium Design System
+   Aesthetic: Dark Terminal × Material3 Dark × Glassmorphism
+   Font: Inter
+   Palette: Cyan (#00E5FF) on Deep Black (#131313)
 ───────────────────────────────────────────────────────────────────────── */
 
 @theme {
-  --font-sans: var(--font-geist-sans), "SF Pro Display", ui-sans-serif, -apple-system, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), "SF Mono", ui-monospace, monospace;
+  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 @layer base {
   :root {
-    /* ── Canvas ── */
-    --bg-base:          #F2F2F7;  /* macOS system background */
-    --bg-elevated:      #FFFFFF;  /* cards & panels */
-    --bg-overlay:       rgba(255, 255, 255, 0.78); /* frosted glass */
-    --bg-inset:         #E5E5EA;  /* inset well */
-    --bg-hover:         rgba(0, 0, 0, 0.04);
+    /* ── Canvas (Dark) ── */
+    --bg-base:              #131313;
+    --bg-elevated:          #201f1f;
+    --bg-surface:           #0e0e0e;
+    --bg-surface-container: #201f1f;
+    --bg-surface-low:       #1c1b1b;
+    --bg-surface-high:      #2a2a2a;
+    --bg-surface-highest:   #353534;
+    --bg-surface-bright:    #393939;
+    --bg-overlay:           rgba(32, 31, 31, 0.6);
+    --bg-hover:             rgba(255, 255, 255, 0.04);
+    --bg-sidebar:           #000000;
+    --bg-topbar:            #000000;
 
     /* ── Borders ── */
-    --border-subtle:    rgba(0, 0, 0, 0.07);
-    --border-default:   rgba(0, 0, 0, 0.11);
-    --border-strong:    rgba(0, 0, 0, 0.18);
+    --border-subtle:    rgba(132, 147, 150, 0.1);
+    --border-default:   #3b494c;
+    --border-strong:    #849396;
+    --border-neutral:   #262626;
 
     /* ── Typography ── */
-    --text-primary:     #1C1C1E;  /* macOS label */
-    --text-secondary:   #3C3C43;  /* secondaryLabel */
-    --text-tertiary:    #8E8E93;  /* tertiaryLabel */
-    --text-quaternary:  #AEAEB2;  /* quaternaryLabel */
-    --text-placeholder: #C7C7CC;
+    --text-primary:     #e5e2e1;
+    --text-secondary:   #bac9cc;
+    --text-tertiary:    #737373;
+    --text-quaternary:  #525252;
+    --text-placeholder: #525252;
+    --text-on-accent:   #00626e;
 
-    /* ── Brand Accent (indigo-ish) ── */
-    --accent:           #3634C0;  /* deep system blue */
-    --accent-mid:       #5856D6;  /* macOS indigo */
-    --accent-light:     rgba(88, 86, 214, 0.10);
-    --accent-glow:      rgba(88, 86, 214, 0.18);
+    /* ── Brand Accent (Cyan) ── */
+    --accent:           #00E5FF;
+    --accent-dim:       #00daf3;
+    --accent-light:     rgba(0, 229, 255, 0.10);
+    --accent-glow:      rgba(0, 229, 255, 0.20);
+    --accent-container: #00626e;
+    --accent-tint:      #c3f5ff;
+    --accent-shadow:    rgba(0, 229, 255, 0.3);
 
     /* ── Semantic states ── */
-    --status-green:     #34C759;  /* systemGreen */
-    --status-green-bg:  rgba(52, 199, 89, 0.10);
-    --status-green-border: rgba(52, 199, 89, 0.24);
+    --status-green:         #34d399;
+    --status-green-bg:      rgba(52, 211, 153, 0.10);
+    --status-green-border:  rgba(52, 211, 153, 0.20);
 
-    --status-yellow:    #FF9F0A;  /* systemOrange */
-    --status-yellow-bg: rgba(255, 159, 10, 0.10);
-    --status-yellow-border: rgba(255, 159, 10, 0.24);
+    --status-yellow:        #fbbf24;
+    --status-yellow-bg:     rgba(251, 191, 36, 0.10);
+    --status-yellow-border: rgba(251, 191, 36, 0.20);
 
-    --status-red:       #FF3B30;  /* systemRed */
-    --status-red-bg:    rgba(255, 59, 48, 0.10);
-    --status-red-border: rgba(255, 59, 48, 0.24);
+    --status-red:           #f87171;
+    --status-red-bg:        rgba(248, 113, 113, 0.10);
+    --status-red-border:    rgba(248, 113, 113, 0.20);
 
-    --status-gray:      #8E8E93;
-    --status-gray-bg:   rgba(142, 142, 147, 0.10);
-    --status-gray-border: rgba(142, 142, 147, 0.24);
+    --status-gray:          #737373;
+    --status-gray-bg:       rgba(115, 115, 115, 0.10);
+    --status-gray-border:   rgba(115, 115, 115, 0.20);
 
     /* ── Sidebar ── */
-    --sidebar-bg:       rgba(246, 246, 248, 0.94);
-    --sidebar-border:   var(--border-subtle);
-    --sidebar-width:    248px;
+    --sidebar-bg:       #000000;
+    --sidebar-border:   var(--border-neutral);
+    --sidebar-width:    256px;
 
-    /* ── Shadows (depth narrative) ── */
-    --shadow-card:      0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.05);
+    /* ── Shadows (dark mode – glow narrative) ── */
+    --shadow-card:      0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
     --shadow-panel:     0 0 0 1px var(--border-subtle), var(--shadow-card);
-    --shadow-raised:    0 2px 8px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.06);
-    --shadow-overlay:   0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px var(--border-subtle);
+    --shadow-raised:    0 4px 16px rgba(0,0,0,0.4);
+    --shadow-overlay:   0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px var(--border-subtle);
+    --shadow-glow:      0 0 15px var(--accent-shadow);
+    --shadow-glow-sm:   0 0 8px var(--accent-shadow);
 
     /* ── Radius system ── */
     --radius-sm:   8px;
@@ -79,7 +93,7 @@
 @layer base {
   * {
     box-sizing: border-box;
-    border-color: var(--border-default);
+    border-color: var(--border-neutral);
   }
 
   html {
@@ -87,6 +101,7 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color-scheme: dark;
   }
 
   body {
@@ -97,12 +112,18 @@
 
   input, select, textarea, option {
     color: var(--text-primary);
-    background-color: var(--bg-elevated);
+    background-color: var(--bg-surface-high);
     font-family: inherit;
   }
 
   h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.022em;
+    color: var(--text-primary);
+  }
+
+  ::selection {
+    background-color: rgba(0, 229, 255, 0.20);
+    color: var(--text-primary);
   }
 }
 
@@ -111,24 +132,33 @@
 ───────────────────────────────────────────────────── */
 @layer utilities {
 
-  /* Surface: the main card/panel primitive */
+  /* Surface: the main card/panel primitive (dark) */
   .surface {
     background-color: var(--bg-elevated);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--border-neutral);
     box-shadow: var(--shadow-card);
+    border-radius: var(--radius-md);
   }
 
   .surface-inset {
-    background-color: var(--bg-base);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-md);
+  }
+
+  /* Glass card — glassmorphism effect */
+  .glass-card {
+    background: var(--bg-overlay);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
   }
 
   /* Frosted glass (sidebar, topbar) */
   .glass {
-    background-color: var(--bg-overlay);
-    backdrop-filter: blur(20px) saturate(200%);
-    -webkit-backdrop-filter: blur(20px) saturate(200%);
-    border: 1px solid var(--border-subtle);
+    background-color: var(--bg-topbar);
+    border: 1px solid var(--border-neutral);
   }
 
   /* Data typography — tabular, mono */
@@ -138,7 +168,7 @@
     letter-spacing: -0.024em;
   }
 
-  /* Eyebrow label — macOS small-caps style */
+  /* Eyebrow label — uppercase caps style */
   .label-caps {
     font-size: 10px;
     font-weight: 700;
@@ -147,50 +177,116 @@
     color: var(--text-tertiary);
   }
 
+  /* Label cyan */
+  .label-cyan {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
   /* Accent dot indicator */
   .dot-green  { @apply inline-block h-1.5 w-1.5 rounded-full bg-[var(--status-green)]; }
   .dot-yellow { @apply inline-block h-1.5 w-1.5 rounded-full bg-[var(--status-yellow)]; }
   .dot-red    { @apply inline-block h-1.5 w-1.5 rounded-full bg-[var(--status-red)]; }
   .dot-gray   { @apply inline-block h-1.5 w-1.5 rounded-full bg-[var(--status-gray)]; }
 
-  /* Nav item active gradient */
+  /* Nav item active (dark + cyan accent) */
   .nav-active {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%);
-    color: white;
-    box-shadow: 0 2px 8px rgba(88,86,214,0.28);
-  }
-
-  /* Subtle top-border accent line */
-  .accent-stripe::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 16px; right: 16px;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-mid) 100%);
-    border-radius: 0 0 2px 2px;
+    background: rgba(0, 229, 255, 0.10);
+    color: var(--accent);
+    border-right: 4px solid var(--accent);
+    font-weight: 600;
   }
 
   /* Metric progress bar */
   .progress-bar-track {
-    background-color: var(--bg-inset);
-    height: 3px;
+    background-color: var(--border-neutral);
+    height: 4px;
     border-radius: 9999px;
     overflow: hidden;
   }
   .progress-bar-fill {
     height: 100%;
     border-radius: 9999px;
-    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-mid) 100%);
+    background: var(--accent);
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Hover lift */
+  /* Hover lift (dark mode) */
   .hover-lift {
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
   .hover-lift:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-raised);
+    border-color: var(--border-default);
+  }
+
+  /* CTA button (cyan) */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--accent);
+    color: var(--text-on-accent);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 24px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 16px var(--accent-shadow);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  /* Subtle background grid */
+  .subtle-grid {
+    background-size: 40px 40px;
+    background-image:
+      linear-gradient(to right, var(--border-neutral) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border-neutral) 1px, transparent 1px);
+  }
+  .btn-primary:hover {
+    filter: brightness(1.1);
+  }
+  .btn-primary:active {
+    transform: scale(0.95);
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    background-color: var(--bg-surface-high);
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 24px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-default);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .btn-secondary:hover {
+    background-color: var(--bg-surface-bright);
+  }
+
+  /* Input field dark */
+  .input-dark {
+    background-color: var(--bg-surface-high);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 14px;
+    padding: 8px 16px;
+    outline: none;
+    transition: box-shadow 0.2s ease;
+  }
+  .input-dark:focus {
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .input-dark::placeholder {
+    color: var(--text-quaternary);
   }
 
   /* ── Animations ── */
@@ -204,6 +300,25 @@
 
   .animate-fade-in {
     animation: fade-in 0.3s ease both;
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .animate-glow {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--bg-surface-high) 25%,
+      var(--bg-surface-bright) 50%,
+      var(--bg-surface-high) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
   }
 }
 
@@ -226,46 +341,89 @@
   to   { opacity: 1; }
 }
 
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @keyframes pulse-status {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
 
-/* ─────────────────────────────────────────────────────
-   SCROLLBAR — thin, macOS-style
-───────────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--accent-shadow); }
+  50% { box-shadow: 0 0 20px var(--accent-shadow); }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.14);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.22);
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* ─────────────────────────────────────────────────────
-   LEGACY CLASS BRIDGE (removes hard colour refs in
-   existing components that reference old token names)
+   SCROLLBAR — thin, dark-theme
+───────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-surface-low);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+/* ─────────────────────────────────────────────────────
+   LEGACY CLASS BRIDGE
 ───────────────────────────────────────────────────── */
 @layer utilities {
-  /* Keep old .oled-panel working while we update per-component */
   .oled-panel {
     background-color: var(--bg-elevated);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--border-neutral);
     box-shadow: var(--shadow-card);
+    border-radius: var(--radius-md);
   }
 }
 
 /* ─────────────────────────────────────────────────────
-   SELECT STYLING
+   SELECT / FORM STYLING (dark)
 ───────────────────────────────────────────────────── */
 select option {
-  background-color: var(--bg-elevated);
+  background-color: var(--bg-surface-high);
   color: var(--text-primary);
+}
+
+select {
+  cursor: pointer;
+}
+
+/* ─────────────────────────────────────────────────────
+   FOCUS STATES
+───────────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────
+   REDUCED MOTION
+───────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

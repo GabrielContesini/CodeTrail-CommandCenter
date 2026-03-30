@@ -24,44 +24,44 @@ export default async function LoginPage({
   const needsBootstrap = env.hasAdmin && ownerCount === 0;
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-4 py-8 sm:px-6 lg:px-10">
-      <div className="pointer-events-none fixed inset-0 subtle-grid opacity-20" />
+    <main className="relative min-h-screen overflow-hidden px-4 py-8 sm:px-6 lg:px-10 bg-[var(--bg-base)]">
+      <div className="pointer-events-none fixed inset-0 subtle-grid opacity-10" />
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1380px] items-stretch gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-        <section className="flex min-h-[420px] flex-col justify-between rounded-[36px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-8 sm:p-10">
+        <section className="flex min-h-[420px] flex-col justify-between rounded-2xl border border-[var(--border-neutral)] bg-[var(--bg-surface-low)] p-8 sm:p-10">
           <div>
-            <div className="inline-flex items-center gap-3 rounded-full border border-[var(--border-default)] bg-[var(--bg-elevated)] px-4 py-2 text-xs uppercase tracking-[0.22em] text-[var(--accent)]">
+            <div className="inline-flex items-center gap-3 rounded-full border border-[var(--accent-light)] bg-[var(--accent-light)] px-4 py-2 text-xs uppercase tracking-[0.22em] font-bold text-[var(--accent)]">
               <ShieldCheck size={16} />
               acesso administrativo
             </div>
-            <h1 className="mt-8 max-w-xl text-4xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-5xl">
+            <h1 className="mt-8 max-w-xl text-4xl font-black tracking-tight text-[var(--text-primary)] sm:text-5xl">
               Command Center do ecossistema CodeTrail
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--text-secondary)]">
               Entre com a conta administrativa do Command Center para operar
-              usuarios, incidentes, telemetria Windows e a saude do ecossistema
-              CodeTrail em um unico painel.
+              usuários, incidentes, telemetria Windows e a saúde do ecossistema
+              CodeTrail em um único painel.
             </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-[14px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">
+            <div className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-container)] p-4">
+              <p className="label-caps">
                 auth
               </p>
               <p className="mt-2 text-sm font-medium text-[var(--text-primary)]">
                 Supabase Auth + RBAC por ops_admin_profiles
               </p>
             </div>
-            <div className="rounded-[14px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">
+            <div className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-container)] p-4">
+              <p className="label-caps">
                 dados
               </p>
               <p className="mt-2 text-sm font-medium text-[var(--text-primary)]">
                 Painel separado da base transacional do produto
               </p>
             </div>
-            <div className="rounded-[14px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">
+            <div className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-container)] p-4">
+              <p className="label-caps">
                 custo
               </p>
               <p className="mt-2 text-sm font-medium text-[var(--text-primary)]">
@@ -71,32 +71,32 @@ export default async function LoginPage({
           </div>
         </section>
 
-        <section className="flex rounded-[36px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-8 sm:p-10">
+        <section className="flex rounded-2xl border border-[var(--border-neutral)] bg-[var(--bg-surface-low)] p-8 sm:p-10">
           <div className="m-auto w-full max-w-md">
-            <p className="text-xs uppercase tracking-[0.26em] text-[var(--accent)]">
+            <p className="label-cyan">
               sign in
             </p>
-            <h2 className="mt-3 text-2xl font-semibold text-[var(--text-primary)]">
+            <h2 className="mt-3 text-2xl font-black text-[var(--text-primary)]">
               {needsBootstrap ? "Primeiro acesso" : "Entrar como operador"}
             </h2>
             <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
               {needsBootstrap
                 ? "Crie a primeira conta owner do Command Center. Depois disso, os demais acessos seguem o fluxo normal de login."
                 : "Use uma conta criada no Supabase do Command Center e garanta que ela tenha um registro em "}
-              {!needsBootstrap ? <code>ops_admin_profiles</code> : null}
+              {!needsBootstrap ? <code className="text-[var(--accent)] font-mono">ops_admin_profiles</code> : null}
               {!needsBootstrap ? "." : null}
             </p>
 
             {!env.hasSupabase ? (
-              <div className="mt-6 rounded-[12px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-                O painel esta sem NEXT_PUBLIC_SUPABASE_URL e
+              <div className="mt-6 rounded-xl border border-[var(--status-yellow-border)] bg-[var(--status-yellow-bg)] px-4 py-3 text-sm text-[var(--status-yellow)]">
+                O painel está sem NEXT_PUBLIC_SUPABASE_URL e
                 NEXT_PUBLIC_SUPABASE_ANON_KEY. Configure o ambiente para ativar o login.
               </div>
             ) : null}
 
             {env.hasSupabase && !env.hasAdmin ? (
-              <div className="mt-6 rounded-[12px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-                O painel esta sem SUPABASE_SERVICE_ROLE_KEY. Configure essa chave
+              <div className="mt-6 rounded-xl border border-[var(--status-yellow-border)] bg-[var(--status-yellow-bg)] px-4 py-3 text-sm text-[var(--status-yellow)]">
+                O painel está sem SUPABASE_SERVICE_ROLE_KEY. Configure essa chave
                 para criar ou gerenciar administradores.
               </div>
             ) : null}

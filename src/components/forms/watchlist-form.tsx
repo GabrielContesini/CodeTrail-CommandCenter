@@ -74,13 +74,13 @@ export function WatchlistForm({ user }: { user: UserSnapshot }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-2 text-sm text-[var(--text-secondary)]">
-          <span>Risco operacional</span>
+          <span className="font-medium">Risco operacional</span>
           <select
             value={riskLevel}
             onChange={(event) =>
               setRiskLevel(event.target.value as UserSnapshot["riskLevel"])
             }
-            className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)]"
+            className="input-dark w-full rounded-xl px-4 py-3"
           >
             {riskOptions.map((option) => (
               <option key={option} value={option}>
@@ -91,13 +91,13 @@ export function WatchlistForm({ user }: { user: UserSnapshot }) {
         </label>
 
         <label className="space-y-2 text-sm text-[var(--text-secondary)]">
-          <span>Status de suporte</span>
+          <span className="font-medium">Status de suporte</span>
           <select
             value={supportStatus}
             onChange={(event) =>
               setSupportStatus(event.target.value as UserSnapshot["supportStatus"])
             }
-            className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)]"
+            className="input-dark w-full rounded-xl px-4 py-3"
           >
             {supportOptions.map((option) => (
               <option key={option} value={option}>
@@ -109,33 +109,33 @@ export function WatchlistForm({ user }: { user: UserSnapshot }) {
       </div>
 
       <label className="block space-y-2 text-sm text-[var(--text-secondary)]">
-        <span>Proxima acao</span>
+        <span className="font-medium">Próxima ação</span>
         <input
           type="datetime-local"
           value={nextActionAt}
           onChange={(event) => setNextActionAt(event.target.value)}
-          className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)]"
+          className="input-dark w-full rounded-xl px-4 py-3"
         />
       </label>
 
       <label className="block space-y-2 text-sm text-[var(--text-secondary)]">
-        <span>Nota interna</span>
+        <span className="font-medium">Nota interna</span>
         <textarea
           rows={5}
           value={internalNote}
           onChange={(event) => setInternalNote(event.target.value)}
-          className="w-full rounded-3xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--accent)]"
+          className="input-dark w-full rounded-xl px-4 py-3 resize-none"
         />
       </label>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-[var(--text-secondary)]">
-          {feedback ?? "Essas notas ajudam a operacao a acompanhar usuarios em risco."}
+        <p className="text-sm text-[var(--text-tertiary)]">
+          {feedback ?? "Essas notas ajudam a operação a acompanhar usuários em risco."}
         </p>
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#005F73,#2EC5FF)] px-5 py-3 text-sm font-semibold text-[#04080B] disabled:cursor-not-allowed disabled:opacity-70"
+          className="btn-primary !rounded-full disabled:cursor-not-allowed disabled:opacity-70"
         >
           {saving ? "Salvando..." : "Salvar watchlist"}
         </button>

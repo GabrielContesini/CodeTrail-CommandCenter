@@ -1,23 +1,18 @@
 import type { Metadata } from "next";
-import { Fira_Code, Fira_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 
-const firaSans = Fira_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-fira-sans",
-});
-
-const firaCode = Fira_Code({
-  subsets: ["latin"],
-  variable: "--font-fira-code",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
   title: "CodeTrail Command Center",
   description:
-    "Painel operacional para monitoramento de usuarios, telemetria do app CodeTrail, sincronizacao e saude da frota.",
+    "Painel operacional para monitoramento de usuários, telemetria do app CodeTrail, sincronização e saúde da frota.",
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
@@ -31,8 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${firaSans.variable} ${firaCode.variable}`}>
-      <body className="font-sans antialiased bg-[var(--bg-canvas)] text-[var(--text-primary)] selection:bg-[var(--accent)]/20">
+    <html lang="pt-BR" className={`${inter.variable} dark`}>
+      <body className="font-sans antialiased bg-[var(--bg-base)] text-[var(--text-primary)]">
         <NuqsAdapter>{children}</NuqsAdapter>
       </body>
     </html>

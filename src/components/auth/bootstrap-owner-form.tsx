@@ -7,7 +7,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 /* ─── shared field style ─────────────────────────────────────────────────── */
 const inputCls =
-  "w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-placeholder)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)]";
+  "input-dark w-full rounded-xl px-4 py-3 text-sm";
 
 export function BootstrapOwnerForm() {
   const router = useRouter();
@@ -62,7 +62,7 @@ export function BootstrapOwnerForm() {
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       {/* Info banner */}
-      <div className="rounded-2xl border border-[var(--status-green-border)] bg-[var(--status-green-bg)] px-4 py-3 text-sm text-[var(--status-green)]">
+      <div className="rounded-xl border border-[var(--status-green-border)] bg-[var(--status-green-bg)] px-4 py-3 text-sm text-[var(--status-green)]">
         Nenhum owner foi encontrado. Cadastre agora a primeira conta
         administrativa do Command Center.
       </div>
@@ -130,7 +130,7 @@ export function BootstrapOwnerForm() {
           <button
             type="button"
             onClick={() => setShowPassword((current) => !current)}
-            className="absolute inset-y-0 right-3 inline-flex items-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+            className="absolute inset-y-0 right-3 inline-flex items-center text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors"
             aria-label={showPassword ? "Ocultar senha" : "Exibir senha"}
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -140,7 +140,7 @@ export function BootstrapOwnerForm() {
 
       {/* Error banner */}
       {error ? (
-        <div className="rounded-2xl border border-[var(--status-red-border)] bg-[var(--status-red-bg)] px-4 py-3 text-sm text-[var(--status-red)]">
+        <div className="rounded-xl border border-[var(--status-red-border)] bg-[var(--status-red-bg)] px-4 py-3 text-sm text-[var(--status-red)]">
           {error}
         </div>
       ) : null}
@@ -149,7 +149,7 @@ export function BootstrapOwnerForm() {
       <button
         type="submit"
         disabled={loading}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-mid)] transition-colors disabled:cursor-not-allowed disabled:opacity-70"
+        className="btn-primary w-full !rounded-xl disabled:cursor-not-allowed disabled:opacity-70"
       >
         {loading ? <LoaderCircle className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
         Criar primeiro owner

@@ -26,18 +26,17 @@ export function UserOpsWorkspace({ users }: { users: UserSnapshot[] }) {
   if (!users.length) {
     return (
       <div
-        className="rounded-[28px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-6 text-sm text-[var(--text-secondary)]"
-        style={{ boxShadow: "var(--shadow-card)" }}
+        className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-low)] p-6 text-sm text-[var(--text-secondary)]"
       >
-        Nenhum usuario foi carregado ainda. Conecte a fonte do produto em{" "}
-        <code className="mx-1 rounded-md border border-[var(--border-default)] bg-[var(--bg-inset)] px-1.5 py-0.5 font-mono text-xs text-[var(--text-primary)]">
+        Nenhum usuário foi carregado ainda. Conecte a fonte do produto em{" "}
+        <code className="mx-1 rounded-md border border-[var(--border-neutral)] bg-[var(--bg-surface-high)] px-1.5 py-0.5 font-mono text-xs text-[var(--accent)]">
           PRODUCT_SUPABASE_URL
         </code>{" "}
         e{" "}
-        <code className="mx-1 rounded-md border border-[var(--border-default)] bg-[var(--bg-inset)] px-1.5 py-0.5 font-mono text-xs text-[var(--text-primary)]">
+        <code className="mx-1 rounded-md border border-[var(--border-neutral)] bg-[var(--bg-surface-high)] px-1.5 py-0.5 font-mono text-xs text-[var(--accent)]">
           PRODUCT_SUPABASE_SERVICE_ROLE_KEY
         </code>{" "}
-        para listar os usuarios reais do CodeTrail App.
+        para listar os usuários reais do CodeTrail App.
       </div>
     );
   }
@@ -49,8 +48,8 @@ export function UserOpsWorkspace({ users }: { users: UserSnapshot[] }) {
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Buscar usuario, e-mail ou trilha..."
-          className="w-full rounded-3xl border border-[var(--border-default)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-placeholder)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)]"
+          placeholder="Buscar usuário, e-mail ou trilha..."
+          className="input-dark w-full rounded-xl px-4 py-3 text-sm"
         />
 
         <div className="scrollbar-thin max-h-[640px] space-y-3 overflow-y-auto pr-2">
@@ -61,16 +60,15 @@ export function UserOpsWorkspace({ users }: { users: UserSnapshot[] }) {
                 type="button"
                 key={user.id}
                 onClick={() => setSelectedId(user.id)}
-                className={`w-full rounded-3xl border p-4 text-left transition-colors ${
+                className={`w-full rounded-xl border p-4 text-left transition-all duration-200 ${
                   active
-                    ? "border-[var(--accent)] bg-[var(--accent-light)]"
-                    : "border-[var(--border-subtle)] bg-[var(--bg-elevated)] hover:bg-[var(--bg-hover)]"
+                    ? "border-[var(--accent)] bg-[var(--accent-light)] shadow-[var(--shadow-glow-sm)]"
+                    : "border-[var(--border-neutral)] bg-[var(--bg-surface-container)] hover:bg-[var(--bg-surface-high)] hover:border-[var(--border-default)]"
                 }`}
-                style={active ? { boxShadow: "var(--shadow-card)" } : undefined}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">{user.name}</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)]">{user.name}</p>
                     <p className="mt-1 text-xs text-[var(--text-secondary)]">
                       {user.email}
                     </p>
@@ -79,7 +77,7 @@ export function UserOpsWorkspace({ users }: { users: UserSnapshot[] }) {
                 </div>
                 <div className="mt-3 flex flex-wrap gap-3 text-xs text-[var(--text-tertiary)]">
                   <span>{user.trackName}</span>
-                  <span>{user.pendingSync} pendencias</span>
+                  <span>{user.pendingSync} pendências</span>
                   <span>{user.weeklyHours.toFixed(1)}h</span>
                 </div>
               </button>
@@ -91,15 +89,14 @@ export function UserOpsWorkspace({ users }: { users: UserSnapshot[] }) {
       {/* ── Right: selected user detail ──────────────────────────────────── */}
       {selectedUser ? (
         <div
-          className="rounded-[28px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-5"
-          style={{ boxShadow: "var(--shadow-card)" }}
+          className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-low)] p-5 shadow-[var(--shadow-card)]"
         >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-mid)]">
-                usuario selecionado
+              <p className="label-cyan">
+                usuário selecionado
               </p>
-              <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+              <h3 className="mt-2 text-2xl font-black text-[var(--text-primary)]">
                 {selectedUser.name}
               </h3>
               <p className="mt-2 text-sm text-[var(--text-secondary)]">
@@ -112,7 +109,7 @@ export function UserOpsWorkspace({ users }: { users: UserSnapshot[] }) {
               <StatusPill value={selectedUser.supportStatus} />
               <Link
                 href={`/users/${selectedUser.id}`}
-                className="inline-flex items-center justify-center rounded-full border border-[var(--border-default)] bg-[var(--bg-elevated)] px-4 py-2 text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-inset)] transition-colors"
+                className="btn-secondary text-xs !py-2 !px-4 !rounded-full"
               >
                 Abrir detalhe
               </Link>
@@ -128,12 +125,12 @@ export function UserOpsWorkspace({ users }: { users: UserSnapshot[] }) {
             ].map(({ label, value }) => (
               <div
                 key={label}
-                className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4"
+                className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-high)] p-4"
               >
-                <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+                <p className="label-caps">
                   {label}
                 </p>
-                <p className="mt-2 text-xl font-semibold text-[var(--text-primary)]">{value}</p>
+                <p className="mt-2 text-xl font-bold text-[var(--text-primary)]">{value}</p>
               </div>
             ))}
           </div>

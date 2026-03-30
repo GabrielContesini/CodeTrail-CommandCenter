@@ -5,7 +5,7 @@ type MetaItem = {
 };
 
 const metaToneConfig = {
-  neutral: "border-[var(--border-subtle)] bg-[var(--bg-inset)] text-[var(--text-primary)]",
+  neutral: "border-[var(--border-neutral)] bg-[var(--bg-surface-container)] text-[var(--text-primary)]",
   good:    "border-[var(--status-green-border)] bg-[var(--status-green-bg)] text-[var(--text-primary)]",
   warning: "border-[var(--status-yellow-border)] bg-[var(--status-yellow-bg)] text-[var(--text-primary)]",
   critical:"border-[var(--status-red-border)] bg-[var(--status-red-bg)] text-[var(--text-primary)]",
@@ -23,40 +23,40 @@ export function PageHeader({
   meta?: MetaItem[];
 }) {
   return (
-    <header className="mb-7">
-      {/* Eyebrow */}
-      <p className="label-caps mb-2">{eyebrow}</p>
-
-      {/* Title + meta grid */}
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(280px,380px)] xl:items-start">
+    <header className="mb-8">
+      {/* Title + description */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <h1 className="text-[1.6rem] font-bold leading-[1.15] tracking-[-0.028em] text-[var(--text-primary)] sm:text-[1.9rem]">
+          <h2 className="text-3xl font-extrabold text-[var(--text-primary)] tracking-tight">
             {title}
-          </h1>
-          <p className="mt-2 max-w-xl text-[14px] leading-[1.6] text-[var(--text-secondary)]">
+          </h2>
+          <p className="text-[var(--text-tertiary)] mt-1 text-sm max-w-xl">
             {description}
           </p>
         </div>
-
-        {meta.length ? (
-          <div className="grid grid-cols-2 gap-3">
-            {meta.map((item) => {
-              const toneClass = metaToneConfig[item.tone ?? "neutral"];
-              return (
-                <div
-                  key={item.label}
-                  className={`flex flex-col justify-between rounded-[12px] border px-4 py-3 transition-colors ${toneClass}`}
-                >
-                  <p className="label-caps">{item.label}</p>
-                  <p className="data-value mt-2 text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
-                    {item.value}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
       </div>
+
+      {/* Meta chips */}
+      {meta.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-3">
+          {meta.map((item) => {
+            const toneClass = metaToneConfig[item.tone ?? "neutral"];
+            return (
+              <div
+                key={item.label}
+                className={`flex flex-col justify-between rounded-xl border px-4 py-3 transition-colors ${toneClass}`}
+              >
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-quaternary)]">
+                  {item.label}
+                </p>
+                <p className="mt-2 text-sm font-semibold tracking-tight text-[var(--text-primary)] tabular-nums">
+                  {item.value}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </header>
   );
 }

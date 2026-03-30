@@ -9,13 +9,7 @@ const roleOptions: AdminRole[] = ["owner", "admin", "operator", "viewer"];
 
 /* ─── shared input / select style ─────────────────────────────────────────── */
 const inputCls =
-  "w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-placeholder)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)] disabled:opacity-60";
-
-/* ─── button styles ────────────────────────────────────────────────────────── */
-const btnPrimary =
-  "inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-mid)] transition-colors disabled:cursor-not-allowed disabled:opacity-60";
-const btnDanger =
-  "inline-flex items-center justify-center rounded-full border border-[var(--status-red-border)] px-4 py-3 text-sm font-semibold text-[var(--status-red)] hover:bg-[var(--status-red-bg)] transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+  "input-dark w-full rounded-xl px-4 py-3 text-sm disabled:opacity-60";
 
 export function AdminMembersWorkspace({
   members,
@@ -158,30 +152,27 @@ export function AdminMembersWorkspace({
     <div className="space-y-6">
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         {/* ── Membros ─────────────────────────────────────────────────────── */}
-        <section
-          className="rounded-[28px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-5"
-          style={{ boxShadow: "var(--shadow-card)" }}
-        >
+        <section className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-low)] p-5 shadow-[var(--shadow-card)]">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-mid)]">
+              <p className="label-cyan">
                 Membros administrativos
               </p>
-              <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+              <h3 className="mt-2 text-2xl font-black text-[var(--text-primary)]">
                 Controle de acesso do painel
               </h3>
               <p className="mt-2 text-sm leading-7 text-[var(--text-secondary)]">
-                Owners gerenciam o time administrativo, definem papeis e evitam
-                que o painel vire uma area sem dono.
+                Owners gerenciam o time administrativo, definem papéis e evitam
+                que o painel vire uma área sem dono.
               </p>
             </div>
-            <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+            <div className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-high)] px-4 py-3 text-sm text-[var(--text-secondary)]">
               {ownerCount} owner(s) · {members.length} membro(s)
             </div>
           </div>
 
           {feedback ? (
-            <div className="mt-5 rounded-2xl border border-[var(--status-green-border)] bg-[var(--status-green-bg)] px-4 py-3 text-sm text-[var(--status-green)]">
+            <div className="mt-5 rounded-xl border border-[var(--status-green-border)] bg-[var(--status-green-bg)] px-4 py-3 text-sm text-[var(--status-green)]">
               {feedback}
             </div>
           ) : null}
@@ -200,12 +191,11 @@ export function AdminMembersWorkspace({
               return (
                 <article
                   key={member.id}
-                  className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4"
-                  style={{ boxShadow: "var(--shadow-card)" }}
+                  className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-container)] p-4 shadow-[var(--shadow-card)]"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm font-semibold text-[var(--text-primary)]">
+                      <p className="text-sm font-bold text-[var(--text-primary)]">
                         {member.displayName}
                       </p>
                       <p className="mt-1 text-xs text-[var(--text-secondary)]">
@@ -214,15 +204,15 @@ export function AdminMembersWorkspace({
                       <div className="mt-2 flex flex-wrap gap-3 text-xs text-[var(--text-tertiary)]">
                         <span>criado em {formatDateTime(member.createdAt)}</span>
                         <span>
-                          ultimo acesso{" "}
+                          último acesso{" "}
                           {member.lastSignInAt
                             ? formatRelativeTime(member.lastSignInAt)
                             : "sem login ainda"}
                         </span>
-                        {isSelf ? <span>esta conta e a sua</span> : null}
+                        {isSelf ? <span>esta conta é a sua</span> : null}
                       </div>
                     </div>
-                    <span className="rounded-full border border-[var(--accent-glow)] bg-[var(--accent-light)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--accent)]">
+                    <span className="rounded-full border border-[var(--accent-light)] bg-[var(--accent-light)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] font-bold text-[var(--accent)]">
                       {member.role}
                     </span>
                   </div>
@@ -255,7 +245,7 @@ export function AdminMembersWorkspace({
                         type="button"
                         disabled={!canManageMembers || isSaving || ownerLock}
                         onClick={() => handleMemberSave(member.id)}
-                        className={btnPrimary}
+                        className="btn-primary !rounded-full disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {isSaving ? "Salvando..." : "Salvar"}
                       </button>
@@ -263,7 +253,7 @@ export function AdminMembersWorkspace({
                         type="button"
                         disabled={!canManageMembers || isSaving || isSelf}
                         onClick={() => handleMemberDelete(member.id)}
-                        className={btnDanger}
+                        className="inline-flex items-center justify-center rounded-full border border-[var(--status-red-border)] px-4 py-3 text-sm font-bold text-[var(--status-red)] hover:bg-[var(--status-red-bg)] transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Remover
                       </button>
@@ -272,7 +262,7 @@ export function AdminMembersWorkspace({
 
                   {ownerLock ? (
                     <p className="mt-3 text-xs text-[var(--status-yellow)]">
-                      Este owner so pode ser alterado quando existir pelo menos mais um owner ativo.
+                      Este owner só pode ser alterado quando existir pelo menos mais um owner ativo.
                     </p>
                   ) : null}
                 </article>
@@ -282,14 +272,11 @@ export function AdminMembersWorkspace({
         </section>
 
         {/* ── Novo operador ────────────────────────────────────────────────── */}
-        <section
-          className="rounded-[28px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-5"
-          style={{ boxShadow: "var(--shadow-card)" }}
-        >
-          <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-mid)]">
+        <section className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-low)] p-5 shadow-[var(--shadow-card)]">
+          <p className="label-cyan">
             Conceder acesso
           </p>
-          <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+          <h3 className="mt-2 text-2xl font-black text-[var(--text-primary)]">
             Novo operador
           </h3>
           <p className="mt-2 text-sm leading-7 text-[var(--text-secondary)]">
@@ -297,8 +284,8 @@ export function AdminMembersWorkspace({
           </p>
 
           {!canManageMembers ? (
-            <div className="mt-5 rounded-2xl border border-[var(--status-yellow-border)] bg-[var(--status-yellow-bg)] px-4 py-3 text-sm text-[var(--status-yellow)]">
-              Seu papel atual e <strong>{currentRole}</strong>. Somente um owner pode
+            <div className="mt-5 rounded-xl border border-[var(--status-yellow-border)] bg-[var(--status-yellow-bg)] px-4 py-3 text-sm text-[var(--status-yellow)]">
+              Seu papel atual é <strong>{currentRole}</strong>. Somente um owner pode
               conceder ou remover acesso administrativo.
             </div>
           ) : null}
@@ -317,7 +304,7 @@ export function AdminMembersWorkspace({
             </label>
 
             <label className="block space-y-2 text-sm font-medium text-[var(--text-secondary)]">
-              <span>Nome de exibicao</span>
+              <span>Nome de exibição</span>
               <input
                 type="text"
                 value={displayName}
@@ -347,7 +334,7 @@ export function AdminMembersWorkspace({
             <button
               type="submit"
               disabled={!canManageMembers || creating}
-              className={btnPrimary}
+              className="btn-primary !rounded-full disabled:cursor-not-allowed disabled:opacity-60"
             >
               {creating ? "Concedendo acesso..." : "Conceder acesso"}
             </button>
@@ -356,17 +343,14 @@ export function AdminMembersWorkspace({
       </div>
 
       {/* ── Auditoria ──────────────────────────────────────────────────────── */}
-      <section
-        className="rounded-[28px] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-5"
-        style={{ boxShadow: "var(--shadow-card)" }}
-      >
+      <section className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-low)] p-5 shadow-[var(--shadow-card)]">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-[var(--accent-mid)]">
+            <p className="label-cyan">
               Auditoria
             </p>
-            <h3 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
-              Ultimas acoes administrativas
+            <h3 className="mt-2 text-2xl font-black text-[var(--text-primary)]">
+              Últimas ações administrativas
             </h3>
           </div>
         </div>
@@ -376,26 +360,26 @@ export function AdminMembersWorkspace({
             audit.map((entry) => (
               <article
                 key={entry.id}
-                className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4"
+                className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-container)] p-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                    <p className="text-sm font-bold text-[var(--text-primary)]">
                       {entry.summary}
                     </p>
                     <p className="mt-1 text-xs text-[var(--text-secondary)]">
                       {entry.actorLabel} · {formatDateTime(entry.createdAt)}
                     </p>
                   </div>
-                  <div className="rounded-full border border-[var(--border-default)] bg-[var(--bg-inset)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--text-secondary)]">
+                  <div className="rounded-full border border-[var(--border-neutral)] bg-[var(--bg-surface-high)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] font-bold text-[var(--text-secondary)]">
                     {entry.action}
                   </div>
                 </div>
               </article>
             ))
           ) : (
-            <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4 text-sm text-[var(--text-secondary)]">
-              Nenhuma acao administrativa registrada ainda.
+            <div className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-container)] p-4 text-sm text-[var(--text-secondary)]">
+              Nenhuma ação administrativa registrada ainda.
             </div>
           )}
         </div>

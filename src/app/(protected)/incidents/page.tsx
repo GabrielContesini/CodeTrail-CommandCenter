@@ -43,24 +43,24 @@ export default async function IncidentsPage() {
 
       {/* Metrics Grid */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <GlassCard className="p-6">
-          <StatCard
-            label="Incidentes Críticos"
-            value={String(critical)}
-            delta={critical > 0 ? "Requer ação" : "Sem alertas"}
-            deltaColor={critical > 0 ? "rose" : "emerald"}
-            progress={critical > 0 ? 100 : 0}
-          />
-        </GlassCard>
-        <GlassCard className="p-6">
-          <StatCard
-            label="Avisos Ativos"
-            value={String(warnings)}
-            delta={`${Math.round((warnings / Math.max(openCount, 1)) * 100)}% dos abertos`}
-            deltaColor="amber"
-            progress={Math.round((warnings / Math.max(openCount, 1)) * 100)}
-          />
-        </GlassCard>
+         <GlassCard className="p-6">
+           <StatCard
+             label="Incidentes Críticos"
+             value={String(critical)}
+             delta={critical > 0 ? "Requer ação" : "Sem alertas"}
+             deltaColor={critical > 0 ? "rose" : "emerald"}
+             progressPercent={critical > 0 ? 100 : 0}
+           />
+         </GlassCard>
+         <GlassCard className="p-6">
+           <StatCard
+             label="Avisos Ativos"
+             value={String(warnings)}
+             delta={`${Math.round((warnings / Math.max(openCount, 1)) * 100)}% dos abertos`}
+             deltaColor="amber"
+             progressPercent={Math.round((warnings / Math.max(openCount, 1)) * 100)}
+           />
+         </GlassCard>
         <GlassCard className="p-6">
           <StatCard
             label="Incidentes Abertos"
@@ -69,15 +69,15 @@ export default async function IncidentsPage() {
             deltaColor="cyan"
           />
         </GlassCard>
-        <GlassCard className="p-6">
-          <StatCard
-            label="Taxa de Resolução"
-            value={`${resolvedCount > 0 ? Math.round((resolvedCount / (resolvedCount + openCount)) * 100) : 0}%`}
-            delta="Últimas 24h"
-            deltaColor="emerald"
-            progress={resolvedCount > 0 ? Math.round((resolvedCount / (resolvedCount + openCount)) * 100) : 0}
-          />
-        </GlassCard>
+         <GlassCard className="p-6">
+           <StatCard
+             label="Taxa de Resolução"
+             value={`${resolvedCount > 0 ? Math.round((resolvedCount / (resolvedCount + openCount)) * 100) : 0}%`}
+             delta="Últimas 24h"
+             deltaColor="emerald"
+             progressPercent={resolvedCount > 0 ? Math.round((resolvedCount / (resolvedCount + openCount)) * 100) : 0}
+           />
+         </GlassCard>
       </div>
 
       <SectionCard

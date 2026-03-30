@@ -38,9 +38,19 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch {
+    // Supabase unreachable (paused project, DNS failure, no internet)
+    if (!isPublicRoute) {
+      return NextResponse.redirect(
+        new URL("/login?reason=connection_error", request.url),
+      );
+    }
+    return response;
+  }
 
   if (!user && !isPublicRoute) {
     return NextResponse.redirect(new URL("/login?reason=signed_out", request.url));

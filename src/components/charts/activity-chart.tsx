@@ -11,7 +11,8 @@ import {
   YAxis,
 } from "recharts";
 
-const TICK_COLOR = "rgba(107,114,128,0.8)";
+const TICK_COLOR = "rgba(186, 201, 204, 0.5)";
+const GRID_COLOR = "rgba(59, 73, 76, 0.3)";
 
 export function ActivityChart({ data }: { data: ActivityPoint[] }) {
   return (
@@ -20,15 +21,15 @@ export function ActivityChart({ data }: { data: ActivityPoint[] }) {
         <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="sessionsFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#6C63FF" stopOpacity={0.18} />
-              <stop offset="100%" stopColor="#6C63FF" stopOpacity={0.0} />
+              <stop offset="0%" stopColor="#00E5FF" stopOpacity={0.20} />
+              <stop offset="100%" stopColor="#00E5FF" stopOpacity={0.0} />
             </linearGradient>
             <linearGradient id="syncFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10B981" stopOpacity={0.18} />
-              <stop offset="100%" stopColor="#10B981" stopOpacity={0.0} />
+              <stop offset="0%" stopColor="#34d399" stopOpacity={0.20} />
+              <stop offset="100%" stopColor="#34d399" stopOpacity={0.0} />
             </linearGradient>
           </defs>
-          <CartesianGrid stroke="rgba(108,99,255,0.07)" strokeDasharray="4 4" vertical={false} />
+          <CartesianGrid stroke={GRID_COLOR} strokeDasharray="4 4" vertical={false} />
           <XAxis
             dataKey="label"
             tick={{ fill: TICK_COLOR, fontSize: 11, fontWeight: 500 }}
@@ -37,39 +38,39 @@ export function ActivityChart({ data }: { data: ActivityPoint[] }) {
             dy={10}
           />
           <YAxis
-            tick={{ fill: TICK_COLOR, fontFamily: "var(--font-fira-code)", fontSize: 11, fontWeight: 500 }}
+            tick={{ fill: TICK_COLOR, fontSize: 11, fontWeight: 500 }}
             tickLine={false}
             axisLine={false}
             dx={-10}
           />
           <Tooltip
             contentStyle={{
-              background: "rgba(255, 255, 255, 0.95)",
+              background: "rgba(32, 31, 31, 0.95)",
               backdropFilter: "blur(12px)",
-              borderColor: "rgba(108,99,255,0.15)",
-              borderRadius: "16px",
-              boxShadow: "0 8px 32px rgba(80,60,180,0.12)",
-              color: "#111827",
+              borderColor: "rgba(0, 229, 255, 0.2)",
+              borderRadius: "12px",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+              color: "#e5e2e1",
               fontSize: "12px",
               fontWeight: 500,
             }}
-            itemStyle={{ color: "#374151", fontWeight: 600 }}
+            itemStyle={{ color: "#bac9cc", fontWeight: 600 }}
           />
           <Area
             type="monotone"
             dataKey="sessions"
-            stroke="#6C63FF"
+            stroke="#00E5FF"
             strokeWidth={2}
             fill="url(#sessionsFill)"
-            activeDot={{ r: 5, strokeWidth: 0, fill: "#6C63FF" }}
+            activeDot={{ r: 5, strokeWidth: 0, fill: "#00E5FF" }}
           />
           <Area
             type="monotone"
             dataKey="syncBacklog"
-            stroke="#10B981"
+            stroke="#34d399"
             strokeWidth={2}
             fill="url(#syncFill)"
-            activeDot={{ r: 5, strokeWidth: 0, fill: "#10B981" }}
+            activeDot={{ r: 5, strokeWidth: 0, fill: "#34d399" }}
           />
         </AreaChart>
       </ResponsiveContainer>

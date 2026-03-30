@@ -17,7 +17,7 @@ export default async function AdminPage() {
 
   const adminRole = access?.profile?.role ?? "viewer";
   const ownerCount = snapshot.members.filter((member) => member.role === "owner").length;
-  const editorCount = snapshot.members.filter((member) => member.role === "editor").length;
+  const adminCount = snapshot.members.filter((member) => member.role === "admin").length;
   const viewerCount = snapshot.members.filter((member) => member.role === "viewer").length;
   const totalMembers = snapshot.members.length;
 
@@ -38,40 +38,40 @@ export default async function AdminPage() {
       {/* Access Status Grid */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <GlassCard className="p-6">
-          <StatCard
-            label="Acesso Público"
-            value={snapshot.hasSupabase ? "Ativo" : "Inativo"}
-            delta={snapshot.hasSupabase ? "Supabase configurado" : "Não configurado"}
-            deltaColor={snapshot.hasSupabase ? "emerald" : "rose"}
-            progress={snapshot.hasSupabase ? 100 : 0}
-          />
+           <StatCard
+             label="Acesso Público"
+             value={snapshot.hasSupabase ? "Ativo" : "Inativo"}
+             delta={snapshot.hasSupabase ? "Supabase configurado" : "Não configurado"}
+             deltaColor={snapshot.hasSupabase ? "emerald" : "rose"}
+             progressPercent={snapshot.hasSupabase ? 100 : 0}
+           />
         </GlassCard>
         <GlassCard className="p-6">
-          <StatCard
-            label="Chave Administrativa"
-            value={snapshot.hasServiceRole ? "Ativa" : "Inativa"}
-            delta={snapshot.hasServiceRole ? "Service role ok" : "Pendente configuração"}
-            deltaColor={snapshot.hasServiceRole ? "emerald" : "amber"}
-            progress={snapshot.hasServiceRole ? 100 : 50}
-          />
+           <StatCard
+             label="Chave Administrativa"
+             value={snapshot.hasServiceRole ? "Ativa" : "Inativa"}
+             delta={snapshot.hasServiceRole ? "Service role ok" : "Pendente configuração"}
+             deltaColor={snapshot.hasServiceRole ? "emerald" : "amber"}
+             progressPercent={snapshot.hasServiceRole ? 100 : 50}
+           />
         </GlassCard>
         <GlassCard className="p-6">
-          <StatCard
-            label="Fonte do Produto"
-            value={snapshot.hasProductSource ? "Conectada" : "Desconectada"}
-            delta={snapshot.hasProductSource ? "Dados sincronizando" : "Sem dados"}
-            deltaColor={snapshot.hasProductSource ? "emerald" : "rose"}
-            progress={snapshot.hasProductSource ? 100 : 0}
-          />
+           <StatCard
+             label="Fonte do Produto"
+             value={snapshot.hasProductSource ? "Conectada" : "Desconectada"}
+             delta={snapshot.hasProductSource ? "Dados sincronizando" : "Sem dados"}
+             deltaColor={snapshot.hasProductSource ? "emerald" : "rose"}
+             progressPercent={snapshot.hasProductSource ? 100 : 0}
+           />
         </GlassCard>
         <GlassCard className="p-6">
-          <StatCard
-            label="Telemetria"
-            value={snapshot.hasTelemetryToken ? "Habilitada" : "Desabilitada"}
-            delta={snapshot.hasTelemetryToken ? "Agentes ativos" : "Sem agentes"}
-            deltaColor={snapshot.hasTelemetryToken ? "cyan" : "amber"}
-            progress={snapshot.hasTelemetryToken ? 100 : 0}
-          />
+           <StatCard
+             label="Telemetria"
+             value={snapshot.hasTelemetryToken ? "Habilitada" : "Desabilitada"}
+             delta={snapshot.hasTelemetryToken ? "Agentes ativos" : "Sem agentes"}
+             deltaColor={snapshot.hasTelemetryToken ? "cyan" : "amber"}
+             progressPercent={snapshot.hasTelemetryToken ? 100 : 0}
+           />
         </GlassCard>
       </div>
 
@@ -132,9 +132,9 @@ export default async function AdminPage() {
         </GlassCard>
         <GlassCard className="p-6">
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Editores</p>
-            <p className="text-3xl font-bold text-[var(--accent)]">{editorCount}</p>
-            <p className="text-xs text-[var(--text-secondary)]">{((editorCount / totalMembers) * 100).toFixed(0)}% do total</p>
+            <p className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Administradores</p>
+            <p className="text-3xl font-bold text-[var(--accent)]">{adminCount}</p>
+            <p className="text-xs text-[var(--text-secondary)]">{((adminCount / totalMembers) * 100).toFixed(0)}% do total</p>
           </div>
         </GlassCard>
         <GlassCard className="p-6">

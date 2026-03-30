@@ -7,14 +7,14 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 const reasonMessages: Record<string, string> = {
   signed_out: "Entre com sua conta administrativa para acessar o Command Center.",
   misconfigured:
-    "O painel esta sem configuracao administrativa completa no Supabase.",
+    "O painel está sem configuração administrativa completa no Supabase.",
   unauthorized:
-    "Sua conta nao esta cadastrada em ops_admin_profiles. Solicite liberacao a um owner.",
+    "Sua conta não está cadastrada em ops_admin_profiles. Solicite liberação a um owner.",
 };
 
 /* ─── shared field style ─────────────────────────────────────────────────── */
 const inputCls =
-  "w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-inset)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-placeholder)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-glow)]";
+  "input-dark w-full rounded-xl px-4 py-3 text-sm";
 
 export function LoginForm({ reason }: { reason?: string }) {
   const initialMessage = useMemo(
@@ -50,7 +50,7 @@ export function LoginForm({ reason }: { reason?: string }) {
       setError(
         cause instanceof Error
           ? cause.message
-          : "Nao foi possivel iniciar a sessao administrativa.",
+          : "Não foi possível iniciar a sessão administrativa.",
       );
     } finally {
       setLoading(false);
@@ -95,7 +95,7 @@ export function LoginForm({ reason }: { reason?: string }) {
           <button
             type="button"
             onClick={() => setShowPassword((current) => !current)}
-            className="absolute inset-y-0 right-3 inline-flex items-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+            className="absolute inset-y-0 right-3 inline-flex items-center text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors"
             aria-label={showPassword ? "Ocultar senha" : "Exibir senha"}
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -105,7 +105,7 @@ export function LoginForm({ reason }: { reason?: string }) {
 
       {/* Error banner */}
       {error ? (
-        <div className="rounded-2xl border border-[var(--status-red-border)] bg-[var(--status-red-bg)] px-4 py-3 text-sm text-[var(--status-red)]">
+        <div className="rounded-xl border border-[var(--status-red-border)] bg-[var(--status-red-bg)] px-4 py-3 text-sm text-[var(--status-red)]">
           {error}
         </div>
       ) : null}
@@ -114,7 +114,7 @@ export function LoginForm({ reason }: { reason?: string }) {
       <button
         type="submit"
         disabled={loading}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white hover:bg-[var(--accent-mid)] transition-colors disabled:cursor-not-allowed disabled:opacity-70"
+        className="btn-primary w-full !rounded-xl disabled:cursor-not-allowed disabled:opacity-70"
       >
         {loading ? <LoaderCircle className="animate-spin" size={18} /> : <LogIn size={18} />}
         Entrar no Command Center

@@ -23,7 +23,7 @@ const labelMap: Record<string, string> = {
 
 const toneConfig = {
   neutral: {
-    pill:  "border-[var(--border-default)] bg-white text-[var(--text-tertiary)]",
+    pill:  "border-[var(--border-neutral)] bg-[var(--bg-surface-high)] text-[var(--text-tertiary)]",
     dot:   "bg-[var(--status-gray)]",
   },
   good: {
@@ -47,7 +47,7 @@ export function StatusPill({ value }: { value: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold tracking-[0.05em] uppercase",
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold tracking-[0.05em] uppercase",
         config.pill,
       )}
     >

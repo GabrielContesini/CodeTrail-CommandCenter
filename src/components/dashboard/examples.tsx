@@ -200,8 +200,8 @@ export function DashboardIntegrated({
       progress: Math.random() * 100,
     })),
     apiStatuses: snapshot.systems.map((sys) => ({
-      name: sys.name,
-      status: sys.status as "online" | "degrading" | "offline",
+      name: sys.machineName,
+      status: (sys.status === "up" ? "online" : sys.status === "degraded" ? "degrading" : "offline") as "online" | "degrading" | "offline",
     })),
     growthValue: parseInt(
       snapshot.metrics[0]?.value?.toString().replace(/,/g, "") || "0"
