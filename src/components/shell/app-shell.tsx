@@ -16,6 +16,7 @@ import {
   Bell,
   HelpCircle,
   Terminal,
+  MessageCircle,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -239,15 +240,23 @@ export function AppShell({
                 </Link>
 
                 <Link
-                  href="/database"
-                  className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-[var(--text-quaternary)] hover:bg-[var(--bg-surface-high)] hover:text-[var(--accent-dim)] transition-all duration-200"
-                >
-                  <FolderKanban size={18} strokeWidth={1.8} />
-                  <span className="flex-1 font-medium">Fila de sync</span>
-                  <span className="rounded-full border border-[var(--border-neutral)] bg-[var(--bg-surface-high)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-tertiary)]">
-                    {sidebarSummary.pendingSync}
-                  </span>
-                </Link>
+                   href="/database"
+                   className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-[var(--text-quaternary)] hover:bg-[var(--bg-surface-high)] hover:text-[var(--accent-dim)] transition-all duration-200"
+                 >
+                   <FolderKanban size={18} strokeWidth={1.8} />
+                   <span className="flex-1 font-medium">Fila de sync</span>
+                   <span className="rounded-full border border-[var(--border-neutral)] bg-[var(--bg-surface-high)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-tertiary)]">
+                     {sidebarSummary.pendingSync}
+                   </span>
+                 </Link>
+
+                 <Link
+                   href="/support"
+                   className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-[var(--text-quaternary)] hover:bg-[var(--bg-surface-high)] hover:text-[var(--accent-dim)] transition-all duration-200"
+                 >
+                   <MessageCircle size={18} strokeWidth={1.8} />
+                   <span className="flex-1 font-medium">Suporte</span>
+                 </Link>
               </div>
             </div>
           </nav>
