@@ -101,7 +101,7 @@ const userDetails = {
 
 export default function SupportPage() {
   return (
-    <main className="ml-20 md:ml-64 pt-16 h-screen flex overflow-hidden">
+    <div className="w-full h-full flex overflow-hidden">
       {/* Left Column: Chat Contacts List (w-80) */}
       <section className="w-80 border-r border-neutral-800 flex flex-col bg-surface-container-lowest">
         {/* Contacts Header */}
@@ -421,6 +421,6 @@ export default function SupportPage() {
           </div>
         </div>
       </aside>
-    </main>
+    </div>
   );
 }

@@ -383,7 +383,14 @@ export function AppShell({
           </div>
 
           {/* Page content */}
-          <div className="flex-1 px-6 py-8 lg:px-8">
+          <div
+            className={cn(
+              "flex-1",
+              pathname === "/support"
+                ? "h-[calc(100vh-4rem)] overflow-hidden p-0"
+                : "px-6 py-8 lg:px-8"
+            )}
+          >
             {children}
           </div>
         </main>
