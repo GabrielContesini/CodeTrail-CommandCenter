@@ -1,21 +1,29 @@
-import { getCommandCenterSnapshot } from "@/lib/command-center-data";
-import {
-  cn,
-  formatDateTime,
-  formatPercent,
-  formatRelativeTime,
-  platformLabel,
-} from "@/lib/utils";
-import Link from "next/link";
+'use client';
 
-export const dynamic = "force-dynamic";
+import { MaterialIcon } from '@/components/icons/material-icon';
+import { cn } from '@/lib/utils';
 
-export default async function OverviewPage(
-  props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
-) {
-  const searchParams = await props.searchParams;
-  const snapshot = await getCommandCenterSnapshot();
+export const dynamic = 'force-dynamic';
 
+// Mock data - será substituído por dados reais
+const mockData = {
+  users: Array(846).fill(null),
+  systems: Array(12).fill(null),
+  services: [
+    { name: 'Main API Gateway', status: 'online' as const },
+    { name: 'Auth Microservice', status: 'degrading' as const },
+    { name: 'Legacy Sync', status: 'offline' as const },
+  ],
+  endpoints: [
+    { path: '/api/v1/auth', requests: '2.4k/s' },
+    { path: '/api/v1/users', requests: '1.8k/s' },
+    { path: '/api/v1/billing', requests: '0.4k/s' },
+  ],
+  totalSubscribers: 12482,
+  peakToday: 2104,
+};
+
+export default function DashboardPage() {
   return (
     <main className="pt-24 pb-12 pl-64 pr-8 lg:pr-12 min-h-screen bg-background">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -35,9 +43,9 @@ export default async function OverviewPage(
           </div>
         </section>
 
-        {/* Bento Grid Metrics */}
+        {/* Bento Grid Metrics - 4-5-3-8-4 columns */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          {/* API Status Bento Block - 4 cols */}
+          {/* Card 1: Real-time API Status (md:col-span-4) */}
           <div className="md:col-span-4 glass-card p-6 rounded-xl flex flex-col justify-between overflow-hidden relative group">
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-4">
@@ -45,47 +53,44 @@ export default async function OverviewPage(
                 <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
               </div>
               <div className="space-y-4">
-                {[
-                  { name: "Main API Gateway", status: "online" as const },
-                  { name: "Auth Microservice", status: "degrading" as const },
-                  { name: "Legacy Sync", status: "offline" as const },
-                ].map((service) => (
+                {mockData.services.map((service) => (
                   <div
                     key={service.name}
                     className={cn(
-                      "flex items-center justify-between p-3 rounded-lg border",
-                      service.status === "online"
-                        ? "bg-emerald-500/10 border-emerald-500/20"
-                        : service.status === "degrading"
-                          ? "bg-amber-500/10 border-amber-500/20"
-                          : "bg-rose-500/10 border-rose-500/20"
+                      'flex items-center justify-between p-3 rounded-lg border',
+                      service.status === 'online'
+                        ? 'bg-emerald-500/10 border-emerald-500/20'
+                        : service.status === 'degrading'
+                          ? 'bg-amber-500/10 border-amber-500/20'
+                          : 'bg-rose-500/10 border-rose-500/20'
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <span
+                      <MaterialIcon
+                        name={
+                          service.status === 'online'
+                            ? 'check_circle'
+                            : service.status === 'degrading'
+                              ? 'warning'
+                              : 'cancel'
+                        }
                         className={cn(
-                          "material-symbols-outlined text-sm",
-                          service.status === "online"
-                            ? "text-emerald-500"
-                            : service.status === "degrading"
-                              ? "text-amber-500"
-                              : "text-rose-500"
+                          'text-sm',
+                          service.status === 'online'
+                            ? 'text-emerald-500'
+                            : service.status === 'degrading'
+                              ? 'text-amber-500'
+                              : 'text-rose-500'
                         )}
-                      >
-                        {service.status === "online"
-                          ? "check_circle"
-                          : service.status === "degrading"
-                            ? "warning"
-                            : "cancel"}
-                      </span>
+                      />
                       <span
                         className={cn(
-                          "text-sm font-medium",
-                          service.status === "online"
-                            ? "text-emerald-200"
-                            : service.status === "degrading"
-                              ? "text-amber-200"
-                              : "text-rose-200"
+                          'text-sm font-medium',
+                          service.status === 'online'
+                            ? 'text-emerald-200'
+                            : service.status === 'degrading'
+                              ? 'text-amber-200'
+                              : 'text-rose-200'
                         )}
                       >
                         {service.name}
@@ -93,12 +98,12 @@ export default async function OverviewPage(
                     </div>
                     <span
                       className={cn(
-                        "text-[10px] font-bold",
-                        service.status === "online"
-                          ? "text-emerald-500"
-                          : service.status === "degrading"
-                            ? "text-amber-500"
-                            : "text-rose-500"
+                        'text-[10px] font-bold',
+                        service.status === 'online'
+                          ? 'text-emerald-500'
+                          : service.status === 'degrading'
+                            ? 'text-amber-500'
+                            : 'text-rose-500'
                       )}
                     >
                       {service.status.toUpperCase()}
@@ -108,45 +113,50 @@ export default async function OverviewPage(
               </div>
             </div>
             <div className="absolute -bottom-8 -right-8 opacity-5 group-hover:opacity-10 transition-opacity">
-              <span className="material-symbols-outlined text-9xl">api</span>
+              <MaterialIcon name="api" className="text-9xl" />
             </div>
           </div>
 
-          {/* Growth Metrics - 5 cols */}
+          {/* Card 2: Growth Metrics (md:col-span-5) */}
           <div className="md:col-span-5 glass-card p-6 rounded-xl flex flex-col justify-between bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent">
             <div>
               <div className="flex justify-between items-start mb-2">
                 <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Growth Metrics</span>
                 <span className="bg-primary-container/20 text-cyan-400 px-2 py-1 rounded text-[10px] font-bold">+12% WoW</span>
               </div>
-              <h3 className="text-5xl font-black text-white mb-2">
-                {snapshot.users.length.toLocaleString()}
-              </h3>
+              <h3 className="text-5xl font-black text-white mb-2">{mockData.totalSubscribers.toLocaleString()}</h3>
               <p className="text-sm text-neutral-400">Total Registered Subscribers</p>
             </div>
             <div className="mt-8 flex items-end gap-1 h-24">
               {[40, 60, 55, 75, 90, 100].map((height, i) => (
-                <div key={i} className="flex-1 bg-cyan-400/20 rounded-t-sm h-[60%]" style={{ height: `${height}%` }}></div>
+                <div key={i} className="flex-1 bg-cyan-400/20 rounded-t-sm" style={{ height: `${height}%` }}></div>
               ))}
             </div>
           </div>
 
-          {/* Active Users - 3 cols */}
+          {/* Card 3: Active Users (md:col-span-3) */}
           <div className="md:col-span-3 glass-card p-6 rounded-xl flex flex-col justify-between">
             <div>
               <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-4 block">Active Users</span>
               <div className="flex items-center gap-4">
                 <div className="flex -space-x-3">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="w-10 h-10 rounded-full border-2 border-neutral-900 bg-neutral-800 flex items-center justify-center text-xs font-bold text-white"
-                    >
-                      U{i}
-                    </div>
-                  ))}
+                  <img
+                    alt="User 1"
+                    className="w-10 h-10 rounded-full border-2 border-neutral-900 object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL677WbZ-TvdVm6WPhOGkZbEjhcs-VGMYtiLGJPDvhfhNoCXYYm8KQkJy1RKycy8p5OhXTwnP5xanghvn8ymf0t6820K48FVpfj8YSWx6n440Tp1ND7lgkk1-jk1II6uT5H84ejGvPUm1XjV_NdK_3SSuZTA1VWmBjdAUd7DFK6m8gvkPxOeDMGCfRl5CPSFObZU5hA5GJnVsacCizPyxnax4doQz09NWr5TTv9_k-RaXjwU4h5J-c0BjjYrwj01p9rqrHRpCEYKg"
+                  />
+                  <img
+                    alt="User 2"
+                    className="w-10 h-10 rounded-full border-2 border-neutral-900 object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTY5RhXq6V_AxJv0fXtFy-4wwPRIVdGdPZaDc4Jfq5zjMrFebnKtPT53w-9A9R8eccj3qb7hv_p6ZYrXTYZJaYpiQEgapiNtOeOHpkagadISnRe6PRx2qHC3LClqCE7nFXj0kHMPvz8l6UJb3KM0ezpi793kfZsg7JJh1B-KQ1E29hB2eAOKUtK2yyKxFOjTKeLgsRu2z3ymQ3P0hc7-Kknk5gzRNeL4WvXKPomaxSx2ue8npycTeSF6rOFR2tVliK_5xoDlQIAM4"
+                  />
+                  <img
+                    alt="User 3"
+                    className="w-10 h-10 rounded-full border-2 border-neutral-900 object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtPlBZP1P-_RKiC9912sGSAHwyCaM31rEYz-rOluOL-1HwwQEsYVUeW1sC2VF2a9mjGvUqi3s9wUafCRGgsZU4-mRZcNDmbfNGs7_WjyfodDRqnubVASPXzjELwknf0AQVpsae2r67gmTJaeHqkS67gUzV0gBxO0h5AhIfW7x-fQjoaZl7-qs5u_cZeOvBot0mbEcHF8bzkJtdWfINayjMhk-kPIZK09mZVZOvj4koG4lzklx7qEIjSlYg2QENSuStXoEF9nsKfJE"
+                  />
                   <div className="w-10 h-10 rounded-full border-2 border-neutral-900 bg-neutral-800 flex items-center justify-center text-[10px] font-bold text-white">
-                    +{Math.max(0, snapshot.users.length - 3)}
+                    +842
                   </div>
                 </div>
               </div>
@@ -154,9 +164,7 @@ export default async function OverviewPage(
             <div className="mt-6 border-t border-neutral-800 pt-4">
               <div className="flex justify-between text-xs mb-1">
                 <span className="text-neutral-400">Peak Today</span>
-                <span className="text-white font-bold">
-                  {Math.floor(snapshot.users.length * 0.75)}
-                </span>
+                <span className="text-white font-bold">{mockData.peakToday.toLocaleString()}</span>
               </div>
               <div className="w-full bg-neutral-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-cyan-400 h-full w-[85%]"></div>
@@ -164,7 +172,7 @@ export default async function OverviewPage(
             </div>
           </div>
 
-          {/* System Performance Analytics - 8 cols */}
+          {/* Card 4: Analytics Chart (md:col-span-8) */}
           <div className="md:col-span-8 glass-card rounded-xl overflow-hidden flex flex-col">
             <div className="p-6 border-b border-neutral-800 flex justify-between items-center">
               <div>
@@ -214,24 +222,21 @@ export default async function OverviewPage(
             </div>
           </div>
 
-          {/* System Alerts Sidebar - 4 cols */}
+          {/* Card 5: Memory Usage Sidebar (md:col-span-4) */}
           <div className="md:col-span-4 space-y-4">
             <div className="glass-card p-5 rounded-xl border-l-4 border-l-cyan-400">
               <div className="flex items-center gap-3 mb-3">
-                <span className="material-symbols-outlined text-cyan-400 text-lg">memory</span>
+                <MaterialIcon name="memory" className="text-cyan-400 text-lg" />
                 <p className="text-xs font-bold text-white">Cluster Health</p>
               </div>
               <p className="text-xs text-neutral-400 mb-4">
-                All {snapshot.systems.length || 12} nodes reporting healthy status.
+                All {mockData.systems.length} nodes reporting healthy status within specified parameters.
               </p>
               <div className="grid grid-cols-4 gap-1">
                 {[...Array(4)].map((_, i) => (
                   <div
                     key={i}
-                    className={cn(
-                      "h-1 rounded-full",
-                      i < 3 ? "bg-cyan-400" : "bg-cyan-400/20"
-                    )}
+                    className={cn('h-1 rounded-full', i < 3 ? 'bg-cyan-400' : 'bg-cyan-400/20')}
                   ></div>
                 ))}
               </div>
@@ -240,14 +245,10 @@ export default async function OverviewPage(
             <div className="glass-card p-5 rounded-xl">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-xs font-bold text-white">Top Endpoints</p>
-                <span className="material-symbols-outlined text-neutral-500 text-sm">open_in_new</span>
+                <MaterialIcon name="open_in_new" className="text-neutral-500 text-sm" />
               </div>
               <ul className="space-y-3">
-                {[
-                  { path: "/api/v1/auth", requests: "2.4k/s" },
-                  { path: "/api/v1/users", requests: "1.8k/s" },
-                  { path: "/api/v1/billing", requests: "0.4k/s" },
-                ].map((endpoint) => (
+                {mockData.endpoints.map((endpoint) => (
                   <li key={endpoint.path} className="flex items-center justify-between text-xs">
                     <span className="text-neutral-500">{endpoint.path}</span>
                     <span className="text-white font-mono">{endpoint.requests}</span>
@@ -260,9 +261,11 @@ export default async function OverviewPage(
               <div className="bg-neutral-900 rounded-[7px] p-5 h-full flex flex-col justify-between">
                 <p className="text-xs font-bold text-white mb-2">Security Shield</p>
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="material-symbols-outlined text-cyan-400 text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    verified_user
-                  </span>
+                  <MaterialIcon
+                    name="shield_with_heart"
+                    className="text-cyan-400 text-3xl"
+                    filled
+                  />
                   <span className="text-xl font-black text-white">ACTIVE</span>
                 </div>
                 <p className="text-[10px] text-neutral-500">244 attempted breaches blocked this session.</p>
@@ -270,6 +273,13 @@ export default async function OverviewPage(
             </div>
           </div>
         </div>
+      </div>
+
+      {/* FAB - Floating Action Button */}
+      <div className="fixed bottom-8 right-8 z-50">
+        <button className="bg-primary-container text-on-primary-container w-14 h-14 rounded-full shadow-2xl shadow-cyan-400/40 flex items-center justify-center group active:scale-90 transition-all">
+          <MaterialIcon name="add" className="text-2xl" filled />
+        </button>
       </div>
     </main>
   );
