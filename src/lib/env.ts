@@ -20,6 +20,11 @@ export function getCommandCenterEnv() {
     process.env.PRODUCT_SUPABASE_SERVICE_ROLE_KEY?.trim() ??
     process.env.SOURCE_SUPABASE_SERVICE_ROLE_KEY?.trim() ??
     "";
+  const productAppUrl =
+    normalizeAppUrl(process.env.PRODUCT_APP_URL) ||
+    normalizeAppUrl(process.env.CODETRAIL_WEB_APP_URL) ||
+    normalizeAppUrl(process.env.NEXT_PUBLIC_PRODUCT_APP_URL) ||
+    "";
 
   const appUrl =
     normalizeAppUrl(process.env.NEXT_PUBLIC_APP_URL) ||
@@ -33,6 +38,7 @@ export function getCommandCenterEnv() {
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ?? "",
     productSupabaseUrl,
     productSupabaseServiceRoleKey,
+    productAppUrl,
     telemetryIngestToken: process.env.TELEMETRY_INGEST_TOKEN?.trim() ?? "",
     appUrl,
   };
@@ -44,6 +50,7 @@ export function getCommandCenterEnv() {
     hasProductSource: Boolean(
       env.productSupabaseUrl && env.productSupabaseServiceRoleKey,
     ),
+    hasProductApp: Boolean(env.productAppUrl),
     hasTelemetryToken: Boolean(env.telemetryIngestToken),
   };
 }

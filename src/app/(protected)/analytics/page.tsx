@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 export default async function AnalyticsPage() {
   const snapshot = await getCommandCenterSnapshot();
   const activeUsers = snapshot.users.filter(
+    // eslint-disable-next-line react-compiler/react-compiler
     (u) => new Date(u.lastSeenAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
   ).length;
 

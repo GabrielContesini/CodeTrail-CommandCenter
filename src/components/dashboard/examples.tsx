@@ -53,8 +53,13 @@ export default function DashboardExample() {
     ],
     growthValue: 12482,
     growthLabel: "Total Registered Subscribers",
-    growthDelta: 12,
+    growthMetaLabel: "9.2k Pro • 3.2k Founding",
+    growthBreakdown: [
+      { label: "Pro", value: 9280, accent: "cyan" as const },
+      { label: "Founding", value: 3202, accent: "violet" as const },
+    ],
     activeUsers: 2104,
+    activeUsersLabel: "atividade nos ultimos 60 min",
     peakToday: 2104,
     maxCapacity: 2500,
     avatars: [
@@ -74,6 +79,21 @@ export default function DashboardExample() {
         name: "Bob Johnson",
       },
     ],
+    performance: {
+      averages: {
+        cpu: 42.4,
+        memory: 58.2,
+        disk: 34.8,
+      },
+      chartData: [
+        { label: "09h", cpu: 30, memory: 49, disk: 34 },
+        { label: "10h", cpu: 38, memory: 52, disk: 35 },
+        { label: "11h", cpu: 45, memory: 57, disk: 35 },
+        { label: "12h", cpu: 42, memory: 58, disk: 36 },
+      ],
+      monitoredNodes: 4,
+      lastHeartbeatAt: new Date().toISOString(),
+    },
   };
 
   return (
@@ -150,10 +170,16 @@ export function ComponentShowcase() {
         <GrowthMetricsCard
           value={12482}
           label="Total Subscribers"
-          deltaPercent={12}
+          metaLabel="9.2k Pro • 3.2k Founding"
+          breakdown={[
+            { label: "Pro", value: 9280, accent: "cyan" },
+            { label: "Founding", value: 3202, accent: "violet" },
+          ]}
         />
 
         <ActiveUsersCard
+          activeUsers={2104}
+          activeUsersLabel="atividade nos ultimos 60 min"
           peakToday={2104}
           maxCapacity={2500}
           avatars={[
@@ -187,7 +213,7 @@ export function DashboardIntegrated({
   const dashboardProps = {
     title: "Dashboard Principal",
     subtitle: "Operational overview and global user metrics.",
-    stats: snapshot.metrics.map((metric) => ({
+    stats: snapshot.metrics.map((metric, index) => ({
       label: metric.label,
       value: metric.value,
       delta: metric.delta || "stable",
@@ -197,7 +223,7 @@ export function DashboardIntegrated({
           : metric.tone === "warning"
             ? ("amber" as const)
             : ("rose" as const),
-      progress: Math.random() * 100,
+      progress: Math.max(20, Math.min(95, 30 + index * 15)),
     })),
     apiStatuses: snapshot.systems.map((sys) => ({
       name: sys.machineName,
@@ -207,8 +233,13 @@ export function DashboardIntegrated({
       snapshot.metrics[0]?.value?.toString().replace(/,/g, "") || "0"
     ),
     growthLabel: "Total Registered Users",
-    growthDelta: 12,
+    growthMetaLabel: "dados mockados de planos",
+    growthBreakdown: [
+      { label: "Pro", value: Math.max(snapshot.users.length - 4, 0), accent: "cyan" as const },
+      { label: "Founding", value: Math.min(snapshot.users.length, 4), accent: "violet" as const },
+    ],
     activeUsers: snapshot.users.length,
+    activeUsersLabel: "atividade recente",
     peakToday: 2104,
     maxCapacity: 2500,
     avatars: snapshot.users.slice(0, 3).map((user) => ({
@@ -216,6 +247,21 @@ export function DashboardIntegrated({
       alt: user.name,
       name: user.name,
     })),
+    performance: {
+      averages: {
+        cpu: 42,
+        memory: 58,
+        disk: 34,
+      },
+      chartData: [
+        { label: "09h", cpu: 34, memory: 49, disk: 31 },
+        { label: "10h", cpu: 38, memory: 53, disk: 33 },
+        { label: "11h", cpu: 44, memory: 57, disk: 34 },
+        { label: "12h", cpu: 42, memory: 58, disk: 35 },
+      ],
+      monitoredNodes: snapshot.systems.length,
+      lastHeartbeatAt: new Date().toISOString(),
+    },
   };
 
   return <DashboardBento {...dashboardProps} />;

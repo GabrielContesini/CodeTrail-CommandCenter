@@ -148,242 +148,240 @@ export function AdminMembersWorkspace({
     });
   }
 
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
   return (
-    <div className="space-y-6">
-      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        {/* ── Membros ─────────────────────────────────────────────────────── */}
-        <section className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-low)] p-5 shadow-[var(--shadow-card)]">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="label-cyan">
-                Membros administrativos
-              </p>
-              <h3 className="mt-2 text-2xl font-black text-[var(--text-primary)]">
-                Controle de acesso do painel
-              </h3>
-              <p className="mt-2 text-sm leading-7 text-[var(--text-secondary)]">
-                Owners gerenciam o time administrativo, definem papéis e evitam
-                que o painel vire uma área sem dono.
-              </p>
-            </div>
-            <div className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-high)] px-4 py-3 text-sm text-[var(--text-secondary)]">
-              {ownerCount} owner(s) · {members.length} membro(s)
-            </div>
-          </div>
-
-          {feedback ? (
-            <div className="mt-5 rounded-xl border border-[var(--status-green-border)] bg-[var(--status-green-bg)] px-4 py-3 text-sm text-[var(--status-green)]">
-              {feedback}
-            </div>
-          ) : null}
-
-          <div className="mt-5 space-y-4">
-            {members.map((member) => {
-              const draft = drafts[member.id] ?? {
-                displayName: member.displayName,
-                role: member.role,
-              };
-              const isSaving = savingId === member.id;
-              const isSelf = member.id === currentUserId;
-              const ownerLock =
-                member.role === "owner" && ownerCount <= 1 && draft.role !== "owner";
-
-              return (
-                <article
-                  key={member.id}
-                  className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-container)] p-4 shadow-[var(--shadow-card)]"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-bold text-[var(--text-primary)]">
-                        {member.displayName}
-                      </p>
-                      <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                        {member.email}
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-[var(--text-tertiary)]">
-                        <span>criado em {formatDateTime(member.createdAt)}</span>
-                        <span>
-                          último acesso{" "}
-                          {member.lastSignInAt
-                            ? formatRelativeTime(member.lastSignInAt)
-                            : "sem login ainda"}
-                        </span>
-                        {isSelf ? <span>esta conta é a sua</span> : null}
-                      </div>
-                    </div>
-                    <span className="rounded-full border border-[var(--accent-light)] bg-[var(--accent-light)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] font-bold text-[var(--accent)]">
-                      {member.role}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 grid gap-4 md:grid-cols-[1fr_220px_auto]">
-                    <input
-                      value={draft.displayName}
-                      onChange={(event) =>
-                        updateDraft(member.id, { displayName: event.target.value })
-                      }
-                      disabled={!canManageMembers || isSaving}
-                      className={inputCls}
-                    />
-                    <select
-                      value={draft.role}
-                      onChange={(event) =>
-                        updateDraft(member.id, { role: event.target.value as AdminRole })
-                      }
-                      disabled={!canManageMembers || isSaving}
-                      className={inputCls}
-                    >
-                      {roleOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        disabled={!canManageMembers || isSaving || ownerLock}
-                        onClick={() => handleMemberSave(member.id)}
-                        className="btn-primary !rounded-full disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {isSaving ? "Salvando..." : "Salvar"}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={!canManageMembers || isSaving || isSelf}
-                        onClick={() => handleMemberDelete(member.id)}
-                        className="inline-flex items-center justify-center rounded-full border border-[var(--status-red-border)] px-4 py-3 text-sm font-bold text-[var(--status-red)] hover:bg-[var(--status-red-bg)] transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        Remover
-                      </button>
-                    </div>
-                  </div>
-
-                  {ownerLock ? (
-                    <p className="mt-3 text-xs text-[var(--status-yellow)]">
-                      Este owner só pode ser alterado quando existir pelo menos mais um owner ativo.
-                    </p>
-                  ) : null}
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ── Novo operador ────────────────────────────────────────────────── */}
-        <section className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-low)] p-5 shadow-[var(--shadow-card)]">
-          <p className="label-cyan">
-            Conceder acesso
-          </p>
-          <h3 className="mt-2 text-2xl font-black text-[var(--text-primary)]">
-            Novo operador
-          </h3>
-          <p className="mt-2 text-sm leading-7 text-[var(--text-secondary)]">
-            A conta precisa existir primeiro no Supabase Auth do ecossistema CodeTrail.
-          </p>
-
-          {!canManageMembers ? (
-            <div className="mt-5 rounded-xl border border-[var(--status-yellow-border)] bg-[var(--status-yellow-bg)] px-4 py-3 text-sm text-[var(--status-yellow)]">
-              Seu papel atual é <strong>{currentRole}</strong>. Somente um owner pode
-              conceder ou remover acesso administrativo.
-            </div>
-          ) : null}
-
-          <form className="mt-5 space-y-4" onSubmit={handleCreate}>
-            <label className="block space-y-2 text-sm font-medium text-[var(--text-secondary)]">
-              <span>E-mail da conta existente</span>
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                disabled={!canManageMembers || creating}
-                placeholder="admin@codetrail.app"
-                className={inputCls}
-              />
-            </label>
-
-            <label className="block space-y-2 text-sm font-medium text-[var(--text-secondary)]">
-              <span>Nome de exibição</span>
-              <input
-                type="text"
-                value={displayName}
-                onChange={(event) => setDisplayName(event.target.value)}
-                disabled={!canManageMembers || creating}
-                placeholder="Nome opcional para o operador"
-                className={inputCls}
-              />
-            </label>
-
-            <label className="block space-y-2 text-sm font-medium text-[var(--text-secondary)]">
-              <span>Papel</span>
-              <select
-                value={role}
-                onChange={(event) => setRole(event.target.value as AdminRole)}
-                disabled={!canManageMembers || creating}
-                className={inputCls}
-              >
-                {roleOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <button
-              type="submit"
-              disabled={!canManageMembers || creating}
-              className="btn-primary !rounded-full disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {creating ? "Concedendo acesso..." : "Conceder acesso"}
-            </button>
-          </form>
-        </section>
+    <div className="space-y-8">
+      {/* Directory Filter Bar & Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+         <h2 className="text-xl font-bold flex items-center gap-2 text-[var(--text-primary)]">
+             <span className="material-symbols-outlined text-[var(--accent)]">group</span>
+             User Directory
+         </h2>
+         <div className="flex items-center gap-3">
+             <button 
+                type="button"
+                onClick={() => setIsAddModalOpen(true)}
+                disabled={!canManageMembers}
+                className="btn-primary !py-2 !px-4 text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+             >
+                <span className="material-symbols-outlined text-sm">add</span>
+                New Member
+             </button>
+         </div>
       </div>
 
-      {/* ── Auditoria ──────────────────────────────────────────────────────── */}
-      <section className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-low)] p-5 shadow-[var(--shadow-card)]">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="label-cyan">
-              Auditoria
-            </p>
-            <h3 className="mt-2 text-2xl font-black text-[var(--text-primary)]">
-              Últimas ações administrativas
-            </h3>
+      {feedback ? (
+        <div className="rounded-xl border border-[var(--status-green-border)] bg-[var(--status-green-bg)] px-4 py-3 text-sm text-[var(--status-green)]">
+          {feedback}
+        </div>
+      ) : null}
+
+      {/* User Directory Table */}
+      <div className="bg-[var(--bg-surface-container)] rounded-xl border border-[var(--border-neutral)] overflow-x-auto">
+         <table className="w-full text-left border-collapse min-w-[700px]">
+             <thead>
+                 <tr className="bg-black/30 border-b border-[var(--border-neutral)]">
+                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)]">User Profile</th>
+                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)]">System Role</th>
+                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)]">Access Info</th>
+                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] text-right">Actions</th>
+                 </tr>
+             </thead>
+             <tbody className="divide-y divide-[var(--border-light)]">
+                 {members.length ? members.map((member) => {
+                     const draft = drafts[member.id] ?? {
+                       displayName: member.displayName,
+                       role: member.role,
+                     };
+                     const isSaving = savingId === member.id;
+                     const isSelf = member.id === currentUserId;
+                     const ownerLock =
+                       member.role === "owner" && ownerCount <= 1 && draft.role !== "owner";
+
+                     return (
+                         <tr key={member.id} className="hover:bg-[var(--bg-surface-high)] transition-colors group">
+                             <td className="px-6 py-4">
+                                 <div className="flex items-center gap-3">
+                                     <div className="w-10 h-10 shrink-0 rounded-lg bg-[var(--bg-surface-highest)] border border-[var(--border-neutral)] flex items-center justify-center text-[var(--text-secondary)]">
+                                         <span className="material-symbols-outlined">person</span>
+                                     </div>
+                                     <div>
+                                         <p className="font-bold text-[var(--text-primary)]">
+                                            {isSelf ? <span className="text-[var(--accent)] mr-1">(You)</span> : null}
+                                            {member.displayName}
+                                         </p>
+                                         <p className="text-xs text-[var(--text-tertiary)]">{member.email}</p>
+                                         {ownerLock && (
+                                            <p className="text-[10px] text-[var(--status-yellow)] mt-0.5">Cannot downgrade last owner</p>
+                                         )}
+                                     </div>
+                                 </div>
+                             </td>
+                             <td className="px-6 py-4">
+                                 <select
+                                    value={draft.role}
+                                    onChange={(event) =>
+                                      updateDraft(member.id, { role: event.target.value as AdminRole })
+                                    }
+                                    disabled={!canManageMembers || isSaving}
+                                    className="bg-[var(--bg-surface-highest)] border border-[var(--border-neutral)] rounded-lg text-xs px-3 py-1.5 text-[var(--text-primary)] focus:ring-1 focus:ring-[var(--accent)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 uppercase tracking-widest font-bold"
+                                 >
+                                    {roleOptions.map((option) => (
+                                      <option key={option} value={option}>
+                                        {option}
+                                      </option>
+                                    ))}
+                                 </select>
+                             </td>
+                             <td className="px-6 py-4 text-xs text-[var(--text-secondary)]">
+                                 <div><span className="font-bold">Created:</span> {formatDateTime(member.createdAt)}</div>
+                                 <div className="mt-0.5"><span className="font-bold">Last seen:</span> {member.lastSignInAt ? formatRelativeTime(member.lastSignInAt) : "Never"}</div>
+                             </td>
+                             <td className="px-6 py-4 text-right">
+                                 <div className="flex items-center justify-end gap-2">
+                                     <button
+                                         type="button"
+                                         disabled={!canManageMembers || isSaving || ownerLock}
+                                         onClick={() => handleMemberSave(member.id)}
+                                         className="rounded p-1.5 text-[var(--accent)] bg-[var(--accent)]/10 hover:bg-[var(--accent)]/20 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                         title="Save changes"
+                                     >
+                                         <span className="material-symbols-outlined text-sm">save</span>
+                                     </button>
+                                     <button
+                                         type="button"
+                                         disabled={!canManageMembers || isSaving || isSelf}
+                                         onClick={() => handleMemberDelete(member.id)}
+                                         className="rounded p-1.5 text-[var(--status-red)] bg-[var(--status-red-bg)] hover:bg-[var(--status-red)]/20 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                         title="Remove user"
+                                     >
+                                         <span className="material-symbols-outlined text-sm">delete</span>
+                                     </button>
+                                 </div>
+                             </td>
+                         </tr>
+                     );
+                 }) : (
+                    <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-[var(--text-tertiary)]">No users found.</td></tr>
+                 )}
+             </tbody>
+         </table>
+         <div className="px-6 py-4 bg-black/20 border-t border-[var(--border-neutral)] flex items-center justify-between">
+             <p className="text-xs text-[var(--text-tertiary)]">Showing <span className="font-bold text-[var(--text-secondary)]">All</span> users.</p>
+         </div>
+      </div>
+
+      {/* Add Member Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-xl border border-[var(--border-neutral)] bg-[#131313] p-6 shadow-2xl relative">
+              <button
+                 type="button"
+                 onClick={() => setIsAddModalOpen(false)}
+                 className="absolute right-6 top-6 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+              >
+                 <span className="material-symbols-outlined">close</span>
+              </button>
+              
+              <h2 className="text-xl font-bold flex items-center gap-2 mb-2 text-[var(--text-primary)]">
+                  <span className="material-symbols-outlined text-[var(--accent)]">person_add</span>
+                  Grant Access
+              </h2>
+              <p className="text-sm text-[var(--text-secondary)] mb-6">
+                  Account must exist in the Supabase Auth ecosystem.
+              </p>
+
+              <form className="space-y-4" onSubmit={handleCreate}>
+                 <label className="block space-y-2 text-sm font-medium text-[var(--text-secondary)]">
+                   <span>Existing Account Email</span>
+                   <input
+                     type="email"
+                     value={email}
+                     onChange={(event) => setEmail(event.target.value)}
+                     disabled={!canManageMembers || creating}
+                     placeholder="admin@codetrail.app"
+                     className={inputCls}
+                   />
+                 </label>
+
+                 <label className="block space-y-2 text-sm font-medium text-[var(--text-secondary)]">
+                   <span>Display Name</span>
+                   <input
+                     type="text"
+                     value={displayName}
+                     onChange={(event) => setDisplayName(event.target.value)}
+                     disabled={!canManageMembers || creating}
+                     placeholder="Optional operator name"
+                     className={inputCls}
+                   />
+                 </label>
+
+                 <label className="block space-y-2 text-sm font-medium text-[var(--text-secondary)]">
+                   <span>Assigned Role</span>
+                   <select
+                     value={role}
+                     onChange={(event) => setRole(event.target.value as AdminRole)}
+                     disabled={!canManageMembers || creating}
+                     className={inputCls}
+                   >
+                     {roleOptions.map((option) => (
+                       <option key={option} value={option}>
+                         {option}
+                       </option>
+                     ))}
+                   </select>
+                 </label>
+
+                 <div className="flex gap-3 pt-4">
+                     <button
+                       type="submit"
+                       disabled={!canManageMembers || creating}
+                       className="btn-primary !py-3 w-full !rounded-full disabled:cursor-not-allowed disabled:opacity-60"
+                     >
+                       {creating ? "Granting access..." : "Grant access"}
+                     </button>
+                 </div>
+              </form>
           </div>
         </div>
+      )}
 
-        <div className="mt-5 space-y-3">
-          {audit.length ? (
-            audit.map((entry) => (
-              <article
-                key={entry.id}
-                className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-container)] p-4"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-bold text-[var(--text-primary)]">
-                      {entry.summary}
-                    </p>
-                    <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                      {entry.actorLabel} · {formatDateTime(entry.createdAt)}
-                    </p>
-                  </div>
-                  <div className="rounded-full border border-[var(--border-neutral)] bg-[var(--bg-surface-high)] px-3 py-1 text-[11px] uppercase tracking-[0.18em] font-bold text-[var(--text-secondary)]">
-                    {entry.action}
-                  </div>
-                </div>
-              </article>
-            ))
-          ) : (
-            <div className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-container)] p-4 text-sm text-[var(--text-secondary)]">
-              Nenhuma ação administrativa registrada ainda.
-            </div>
-          )}
-        </div>
-      </section>
+      {/* Audit Log */}
+      <h2 className="text-lg font-bold flex items-center gap-2 mt-8 text-[var(--text-primary)]">
+          <span className="material-symbols-outlined text-[var(--text-tertiary)]">history_edu</span>
+          Security Audit Log
+      </h2>
+      <div className="bg-[var(--bg-surface-low)] rounded-xl border border-[var(--border-neutral)] overflow-hidden">
+         <table className="w-full text-left text-sm">
+             <tbody className="divide-y divide-[var(--border-light)]">
+                {audit.length ? audit.map((entry) => (
+                    <tr key={entry.id} className="hover:bg-[var(--bg-surface-container)] transition-colors">
+                        <td className="px-6 py-4">
+                           <div className="flex flex-col gap-1">
+                               <p className="font-bold text-[var(--text-primary)]">{entry.summary}</p>
+                               <p className="text-xs text-[var(--text-tertiary)]">{entry.actorLabel}</p>
+                           </div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                           <div className="flex flex-col items-end gap-1">
+                               <span className="inline-flex rounded border border-[var(--border-neutral)] bg-neutral-800 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                   {entry.action}
+                               </span>
+                               <span className="text-xs text-[var(--text-secondary)]">{formatDateTime(entry.createdAt)}</span>
+                           </div>
+                        </td>
+                    </tr>
+                )) : (
+                    <tr>
+                        <td colSpan={2} className="px-6 py-8 text-center text-sm text-[var(--text-tertiary)]">
+                            No administrative actions recorded.
+                        </td>
+                    </tr>
+                )}
+             </tbody>
+         </table>
+      </div>
     </div>
   );
 }

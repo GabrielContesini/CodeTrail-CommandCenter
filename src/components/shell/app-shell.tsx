@@ -1,68 +1,22 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import {
-  Activity,
-  ChevronDown,
-  Database,
-  FolderKanban,
-  HeartPulse,
-  LayoutDashboard,
-  LogOut,
-  MonitorCog,
-  Search,
-  Shield,
-  Siren,
-  Bell,
-  HelpCircle,
-  Terminal,
-  MessageCircle,
-} from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useQueryState } from "nuqs";
-import { Suspense, useMemo, useState } from "react";
-
-function TopBarFilters() {
-  const [envFilter, setEnvFilter] = useQueryState("env", { defaultValue: "all" });
-  const [timeRange, setTimeRange] = useQueryState("range", { defaultValue: "24h" });
-
-  return (
-    <div className="flex items-center gap-0 rounded-lg bg-[var(--bg-surface-high)] p-0.5">
-      <select
-        value={envFilter}
-        onChange={(e) => setEnvFilter(e.target.value)}
-        className="appearance-none cursor-pointer rounded-lg bg-transparent pl-3 pr-2 py-1.5 text-xs font-medium text-[var(--text-primary)] outline-none border-none"
-      >
-        <option value="all">Global</option>
-        <option value="prod">Produção</option>
-        <option value="stag">Staging</option>
-      </select>
-      <div className="h-3 w-px bg-[var(--border-neutral)]" />
-      <select
-        value={timeRange}
-        onChange={(e) => setTimeRange(e.target.value)}
-        className="appearance-none cursor-pointer rounded-lg bg-transparent pl-2 pr-3 py-1.5 text-xs font-semibold text-[var(--accent)] outline-none border-none"
-      >
-        <option value="1h">1H</option>
-        <option value="24h">24H</option>
-        <option value="7d">7D</option>
-      </select>
-    </div>
-  );
-}
+import { useMemo, useState } from "react";
 
 const primaryNavigation = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/incidents", label: "Incidentes", icon: Siren },
-  { href: "/admin", label: "Admin", icon: Shield },
+  { href: "/", label: "Dashboard", icon: "dashboard" },
+  { href: "/incidents", label: "Incidentes", icon: "emergency" },
+  { href: "/admin", label: "Sistema Config", icon: "settings" },
 ];
 
 const observabilityNavigation = [
-  { href: "/users", label: "Usuários", icon: Activity },
-  { href: "/systems", label: "Plataformas", icon: MonitorCog },
-  { href: "/database", label: "Banco", icon: Database },
+  { href: "/users", label: "Membros", icon: "group" },
+  { href: "/apis", label: "APIs", icon: "api" },
+  { href: "/systems", label: "Plataformas", icon: "analytics" },
+  { href: "/database", label: "Database", icon: "database" },
+  { href: "/billing", label: "Faturamento", icon: "receipt_long" },
 ];
 
 export function AppShell({
@@ -85,316 +39,202 @@ export function AppShell({
   };
 }) {
   const pathname = usePathname();
-  const [workspaceOpen, setWorkspaceOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigation = useMemo(
     () => [...primaryNavigation, ...observabilityNavigation],
-    [],
+    []
   );
-  const currentItem =
-    navigation.find((item) =>
-      item.href === "/"
-        ? pathname === item.href
-        : pathname.startsWith(item.href),
-    ) ?? navigation[0];
-
-  const globalHealthScore = 94;
 
   return (
-    <div className="min-h-screen text-[var(--text-primary)] bg-[var(--bg-base)]">
-      <div className="relative mx-auto min-h-screen max-w-[1920px] xl:grid xl:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] xl:gap-0">
-
-        {/* ── Sidebar ── */}
-        <aside
-          className="hidden self-start xl:flex xl:h-screen xl:sticky xl:top-0 xl:flex-col bg-[var(--sidebar-bg)] border-r border-[var(--border-neutral)]"
-        >
-          {/* Logo zone */}
-          <div className="flex items-center gap-3 px-5 py-5 border-b border-[var(--border-neutral)]">
-            <div className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--accent)]">
-              <Terminal size={20} strokeWidth={2.2} className="text-[var(--text-on-accent)]" />
+    <div className="bg-[var(--bg-base)] text-on-background antialiased selection:bg-[var(--accent)]/20 selection:text-[var(--accent)] min-h-screen">
+      {/* SideNavBar Anchor */}
+      <aside 
+        className={cn(
+          "fixed left-0 top-0 h-full w-64 flex-col py-6 z-[60] bg-neutral-900 border-r border-neutral-800 font-medium text-sm transition-transform duration-300 md:flex",
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        )}
+      >
+        <div className="px-6 mb-10 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[var(--accent)]/20 flex items-center justify-center border border-[var(--accent)]/30">
+              <span className="material-symbols-outlined text-[var(--accent)] text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>
             </div>
             <div>
-              <p className="text-sm font-black text-[var(--accent)] tracking-tight leading-tight">
-                Command Center
-              </p>
-              <p className="text-[10px] uppercase tracking-[0.12em] text-[var(--text-quaternary)] mt-0.5">
-                Admin Terminal
-              </p>
+              <h1 className="text-[var(--accent)] font-black leading-tight tracking-tight">Command Center</h1>
+              <p className="text-[10px] text-neutral-500 uppercase tracking-widest mt-0.5">Admin Terminal</p>
             </div>
           </div>
-
-          {/* Nav */}
-          <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
-            {/* Primary nav */}
-            <div>
-              <p className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--text-quaternary)]">
-                Sistema
-              </p>
-              <div className="space-y-0.5">
-                {primaryNavigation.map((item) => {
-                  const active =
-                    item.href === "/"
-                      ? pathname === item.href
-                      : pathname.startsWith(item.href);
-                  const Icon = item.icon;
-                  const badge =
-                    item.href === "/incidents"
-                      ? sidebarSummary.openIncidents
+          {/* Close Menu Button (Mobile Only) */}
+          <button 
+            type="button" 
+            className="md:hidden text-neutral-400 hover:text-white"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
+          {navigation.map((item) => {
+            const active = item.href === "/" ? pathname === item.href : pathname.startsWith(item.href);
+            const badge =
+              item.href === "/incidents"
+                ? sidebarSummary.openIncidents
+                : item.href === "/users"
+                  ? sidebarSummary.riskyUsers
+                  : item.href === "/systems"
+                    ? sidebarSummary.degradedSystems
+                    : item.href === "/database"
+                      ? sidebarSummary.databaseAttention
                       : undefined;
 
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200",
-                        active
-                          ? "nav-active"
-                          : "text-[var(--text-quaternary)] hover:bg-[var(--bg-surface-high)] hover:text-[var(--accent-dim)]",
-                      )}
-                    >
-                      <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
-                      <span className="flex-1">{item.label}</span>
-                      {badge ? (
-                        <span className="rounded-full bg-[var(--status-red-bg)] border border-[var(--status-red-border)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--status-red)]">
-                          {badge}
-                        </span>
-                      ) : null}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Observability collapse */}
-            <div>
-              <button
-                type="button"
-                onClick={() => setWorkspaceOpen((c) => !c)}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left"
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group",
+                  active
+                    ? "bg-[var(--accent)]/10 text-[var(--accent)] border-r-4 border-[var(--accent)] font-bold pointer-events-none"
+                    : "text-neutral-500 hover:bg-neutral-800 hover:text-[var(--accent)] active:translate-x-1"
+                )}
               >
-                <p className="flex-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--text-quaternary)]">
-                  Observabilidade
-                </p>
-                <ChevronDown
-                  size={12}
-                  className={cn(
-                    "text-[var(--text-quaternary)] transition-transform duration-200",
-                    workspaceOpen ? "rotate-0" : "-rotate-90",
-                  )}
-                />
-              </button>
-
-              {workspaceOpen && (
-                <div className="mt-0.5 space-y-0.5">
-                  {observabilityNavigation.map((item) => {
-                    const active = pathname.startsWith(item.href);
-                    const Icon = item.icon;
-                    const badge =
-                      item.href === "/users"
-                        ? sidebarSummary.riskyUsers
-                        : item.href === "/systems"
-                          ? sidebarSummary.degradedSystems
-                          : sidebarSummary.databaseAttention;
-
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={cn(
-                          "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200",
-                          active
-                            ? "nav-active"
-                            : "text-[var(--text-quaternary)] hover:bg-[var(--bg-surface-high)] hover:text-[var(--accent-dim)]",
-                        )}
-                      >
-                        <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
-                        <span className="flex-1">{item.label}</span>
-                        {badge ? (
-                          <span className="rounded-full border border-[var(--border-neutral)] bg-[var(--bg-surface-high)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-tertiary)]">
-                            {badge}
-                          </span>
-                        ) : null}
-                      </Link>
-                    );
-                  })}
-                </div>
+                <span 
+                  className="material-symbols-outlined text-[20px] transition-transform group-hover:scale-110" 
+                  style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}
+                >
+                  {item.icon}
+                </span>
+                <span className="flex-1">{item.label}</span>
+                {badge ? (
+                  <span className={cn(
+                     "rounded-full px-1.5 py-0.5 text-[10px] font-bold border",
+                     item.href === "/incidents" 
+                       ? "bg-[var(--status-red-bg)] border-[var(--status-red-border)] text-[var(--status-red)]" 
+                       : "border-neutral-700 bg-neutral-800 text-neutral-400"
+                  )}>
+                    {badge}
+                  </span>
+                ) : null}
+              </Link>
+            )
+          })}
+          
+           <div className="mt-8 mb-3 px-4 uppercase text-[10px] tracking-[0.15em] font-bold text-neutral-600">
+             Workspace
+           </div>
+           
+           <Link
+             href="/support"
+             onClick={() => setMobileMenuOpen(false)}
+             className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group active:translate-x-1",
+                pathname === "/support"
+                  ? "bg-[var(--accent)]/10 text-[var(--accent)] border-r-4 border-[var(--accent)] font-bold pointer-events-none"
+                  : "text-neutral-500 hover:bg-neutral-800 hover:text-[var(--accent)]"
               )}
+           >
+             <span className="material-symbols-outlined text-[20px] transition-transform group-hover:scale-110">chat</span>
+             <span className="flex-1">Suporte Operacional</span>
+           </Link>
+           <Link
+             href="/logout"
+             onClick={() => setMobileMenuOpen(false)}
+             className="flex items-center gap-3 px-4 py-3 rounded-lg text-neutral-500 hover:bg-[var(--status-red-bg)] hover:text-[var(--status-red)] hover:border-[var(--status-red-border)] border border-transparent transition-all duration-200 group active:translate-x-1"
+           >
+             <span className="material-symbols-outlined text-[20px] transition-transform group-hover:scale-110">logout</span>
+             <span className="flex-1">Sair da Sessão</span>
+           </Link>
+        </nav>
+        
+        <div className="px-6 mt-6 pb-2">
+          <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 shadow-inner">
+            <p className="text-[10px] text-neutral-500 mb-2 uppercase font-bold tracking-widest flex items-center justify-between">
+              <span>Carga da API</span>
+              <span className="flex h-2 w-2 rounded-full bg-[var(--accent)] animate-pulse"></span>
+            </p>
+            <div className="w-full bg-neutral-800 h-1.5 rounded-full overflow-hidden mt-3">
+              <div className="bg-[var(--accent)] h-full w-[42%] shadow-[0_0_10px_var(--accent)]"></div>
             </div>
-
-            {/* Workspace shortcuts */}
-            <div>
-              <p className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--text-quaternary)]">
-                Workspace
-              </p>
-              <div className="space-y-0.5">
-                <Link
-                  href="/users"
-                  className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-[var(--text-quaternary)] hover:bg-[var(--bg-surface-high)] hover:text-[var(--accent-dim)] transition-all duration-200"
-                >
-                  <HeartPulse size={18} strokeWidth={1.8} className="text-[var(--status-yellow)]" />
-                  <span className="flex-1 font-medium">Minha watchlist</span>
-                  <span className="rounded-full bg-[var(--status-yellow-bg)] border border-[var(--status-yellow-border)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--status-yellow)]">
-                    {sidebarSummary.riskyUsers}
-                  </span>
-                </Link>
-
-                <Link
-                   href="/database"
-                   className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-[var(--text-quaternary)] hover:bg-[var(--bg-surface-high)] hover:text-[var(--accent-dim)] transition-all duration-200"
-                 >
-                   <FolderKanban size={18} strokeWidth={1.8} />
-                   <span className="flex-1 font-medium">Fila de sync</span>
-                   <span className="rounded-full border border-[var(--border-neutral)] bg-[var(--bg-surface-high)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-tertiary)]">
-                     {sidebarSummary.pendingSync}
-                   </span>
-                 </Link>
-
-                 <Link
-                   href="/support"
-                   className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-[var(--text-quaternary)] hover:bg-[var(--bg-surface-high)] hover:text-[var(--accent-dim)] transition-all duration-200"
-                 >
-                   <MessageCircle size={18} strokeWidth={1.8} />
-                   <span className="flex-1 font-medium">Suporte</span>
-                 </Link>
-              </div>
-            </div>
-          </nav>
-
-          {/* System Load indicator */}
-          <div className="px-4 py-3">
-            <div className="rounded-xl border border-[var(--border-neutral)] bg-[var(--bg-surface-low)] p-4">
-              <p className="text-[10px] text-[var(--text-quaternary)] mb-2 uppercase font-bold tracking-wider">
-                Carga do Sistema
-              </p>
-              <div className="w-full bg-[var(--border-neutral)] h-1 rounded-full overflow-hidden">
-                <div className="bg-[var(--accent)] h-full w-[42%] transition-all duration-500" />
-              </div>
-              <p className="text-xs mt-2 text-[var(--accent)] font-medium">42.8% Capacidade</p>
-            </div>
+            <p className="text-xs mt-2 text-[var(--accent)] font-bold tabular-nums">42.8% Capacidade</p>
           </div>
+        </div>
+      </aside>
 
-          {/* Admin card */}
-          <div className="shrink-0 border-t border-[var(--border-neutral)] px-4 py-4">
-            {admin ? (
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent-dim)] text-black">
-                  <span className="text-[11px] font-bold">
-                    {admin.displayName?.charAt(0)?.toUpperCase()}
-                  </span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-[var(--text-primary)] leading-none truncate">
-                    {admin.displayName}
-                  </p>
-                  <p className="mt-0.5 text-[10px] text-[var(--accent)] font-medium truncate">
-                    {admin.role === "owner" ? "System Master" : admin.role}
-                  </p>
-                </div>
-                <a
-                  href="/logout"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-quaternary)] hover:bg-[var(--status-red-bg)] hover:text-[var(--status-red)] transition-colors"
-                  title="Encerrar sessão"
-                >
-                  <LogOut size={14} />
-                </a>
-              </div>
-            ) : null}
-          </div>
-        </aside>
+      {/* Overlay Backdrop for Mobile Menu */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
 
-        {/* ── Main content ── */}
-        <main className="min-w-0 flex flex-col">
-          {/* Top bar */}
-          <div className="sticky top-0 z-20 bg-[var(--bg-topbar)] border-b border-[var(--border-neutral)] px-6 h-16 flex items-center">
-            <div className="flex items-center justify-between gap-4 w-full">
-              {/* Left: Page context */}
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--status-green-bg)] border border-[var(--status-green-border)]">
-                  <span className="text-[11px] font-bold text-[var(--status-green)] tabular-nums">
-                    {globalHealthScore}
-                  </span>
-                </div>
-                <div>
-                  <p className="label-caps">Superfície ativa</p>
-                  <p className="text-sm font-semibold text-[var(--text-primary)] leading-tight tracking-tight">
-                    {currentItem.label}
-                  </p>
-                </div>
-              </div>
-
-              {/* Mobile nav pills */}
-              <div className="flex flex-wrap items-center gap-1.5 xl:hidden">
-                {navigation.map((item) => {
-                  const active =
-                    item.href === "/"
-                      ? pathname === item.href
-                      : pathname.startsWith(item.href);
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[11px] font-medium transition-all",
-                        active
-                          ? "border-[var(--accent-light)] bg-[var(--accent-light)] text-[var(--accent)]"
-                          : "border-[var(--border-neutral)] text-[var(--text-quaternary)] hover:text-[var(--text-primary)]",
-                      )}
-                    >
-                      <Icon size={12} />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </div>
-
-              {/* Right controls */}
-              <div className="flex items-center gap-3">
-                {/* Search */}
-                <div className="hidden sm:flex items-center gap-2 rounded-lg bg-[var(--bg-surface-high)] px-3 py-2 transition-all focus-within:ring-1 focus-within:ring-[var(--accent)]">
-                  <Search size={14} className="text-[var(--text-quaternary)]" />
-                  <input
-                    type="text"
-                    placeholder="Buscar sistemas..."
-                    className="w-36 bg-transparent text-sm text-[var(--text-primary)] placeholder-[var(--text-quaternary)] outline-none border-none"
-                  />
-                </div>
-
-                {/* Action buttons */}
-                <button className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-quaternary)] hover:bg-[var(--bg-surface-high)] hover:text-[var(--text-primary)] transition-colors active:scale-95 duration-150">
-                  <Bell size={18} />
-                </button>
-                <button className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-quaternary)] hover:bg-[var(--bg-surface-high)] hover:text-[var(--text-primary)] transition-colors active:scale-95 duration-150">
-                  <HelpCircle size={18} />
-                </button>
-
-                <div className="h-6 w-px bg-[var(--border-neutral)]" />
-
-                <Suspense
-                  fallback={
-                    <div className="h-8 w-24 rounded-lg bg-[var(--bg-surface-high)] animate-shimmer" />
-                  }
-                >
-                  <TopBarFilters />
-                </Suspense>
-              </div>
-            </div>
-          </div>
-
-          {/* Page content */}
-          <div
-            className={cn(
-              "flex-1",
-              pathname === "/support"
-                ? "h-[calc(100vh-4rem)] overflow-hidden p-0"
-                : "px-6 py-8 lg:px-8"
-            )}
+      {/* TopAppBar Anchor */}
+      <header className="fixed top-0 w-full z-40 flex justify-between items-center px-4 md:px-6 h-16 bg-neutral-900 border-b border-neutral-800 md:ml-64 md:w-[calc(100%-16rem)] shadow-sm antialiased backdrop-blur-md bg-opacity-90">
+        <div className="flex items-center gap-3">
+          {/* Hamburger Menu (Mobile Only) */}
+          <button 
+            type="button"
+            className="md:hidden text-neutral-400 hover:text-[var(--accent)] focus:outline-none p-1"
+            onClick={() => setMobileMenuOpen(true)}
           >
-            {children}
+            <span className="material-symbols-outlined text-2xl">menu</span>
+          </button>
+          
+          <div className="relative w-full max-w-sm hidden sm:block">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 text-[18px]">search</span>
+            <input 
+              type="text"
+              placeholder="Buscar no sistema (Cmd + K)..."
+              className="w-full bg-neutral-800/50 border border-neutral-800 rounded-lg py-1.5 pl-10 pr-4 text-sm focus:ring-1 focus:ring-[var(--accent)] focus:border-[var(--accent)] text-white outline-none transition-all placeholder:text-neutral-500 shadow-inner"
+            />
           </div>
-        </main>
-      </div>
+        </div>
+        
+        <div className="flex items-center gap-4 sm:gap-6">
+           <div className="flex items-center gap-1 sm:gap-2">
+             <button aria-label="Notificações" className="relative text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors p-2 rounded-lg active:scale-95 duration-150">
+                <span className="material-symbols-outlined text-[20px]">notifications</span>
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--status-red)] shadow-[0_0_8px_var(--status-red)]"></span>
+             </button>
+             <button aria-label="Ajuda" className="hidden sm:flex text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors p-2 rounded-lg active:scale-95 duration-150">
+                <span className="material-symbols-outlined text-[20px]">help_center</span>
+             </button>
+           </div>
+           
+           <div className="h-8 w-px bg-neutral-800 hidden sm:block"></div>
+           
+           <div className="flex items-center gap-3 select-none cursor-pointer group">
+              <div className="text-right hidden sm:block">
+                <p className="text-[13px] font-bold text-white leading-tight group-hover:text-[var(--accent)] transition-colors">{admin?.displayName || "Admin"}</p>
+                <p className="text-[10px] text-neutral-400 font-bold tracking-wider mt-0.5 uppercase group-hover:text-[var(--accent)] transition-colors">{admin?.role === "owner" ? "System Master" : (admin?.role || "Operador")}</p>
+              </div>
+              <div className="w-9 h-9 rounded-full border border-neutral-700 flex items-center justify-center bg-gradient-to-br from-neutral-800 to-neutral-900 overflow-hidden shadow-inner group-hover:border-[var(--accent)] transition-colors">
+                 <span className="material-symbols-outlined text-neutral-400 group-hover:text-[var(--accent)] transition-colors" style={{ fontVariationSettings: "'FILL' 1" }}>shield_person</span>
+              </div>
+           </div>
+        </div>
+      </header>
+
+      {/* Main Content Canvas */}
+      <main className={cn(
+          "transition-all min-h-screen bg-black",
+          pathname === "/support"
+            ? "md:pl-64 pt-16 flex flex-col h-screen overflow-hidden"
+            : "md:pl-64 pt-24 pb-12"
+      )}>
+        {pathname === "/support" ? (
+             <div className="flex-1 w-full h-full relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
+                {children}
+             </div>
+        ) : (
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-8 xl:px-12 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {children}
+            </div>
+        )}
+      </main>
     </div>
   );
 }

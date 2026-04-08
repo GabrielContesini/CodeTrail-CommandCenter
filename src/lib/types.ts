@@ -9,7 +9,11 @@ export type SupportStatus =
   | "escalated";
 export type PlatformKey = "android" | "windows" | "web" | "api";
 export type IncidentSeverity = "info" | "warning" | "critical";
-export type IncidentStatus = "open" | "investigating" | "mitigated" | "resolved";
+export type IncidentStatus =
+  | "open"
+  | "investigating"
+  | "mitigated"
+  | "resolved";
 
 export type MetricSnapshot = {
   label: string;
@@ -247,4 +251,155 @@ export type CommandCenterSnapshot = {
   users: UserSnapshot[];
   database: DatabaseMetric[];
   incidents: IncidentSnapshot[];
+};
+
+export type PlanDistribution = {
+  id: string;
+  name: string;
+  userCount: number;
+  percentage: number;
+  color: string;
+};
+
+export type SubscriptionEvent = {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userInitials: string;
+  eventType: string;
+  timeAgo: string;
+  planType: string;
+  amount: number;
+  status: "success" | "retrying" | "failed";
+};
+
+export type BillingSnapshot = {
+  mode: DataSourceMode;
+  generatedAt: string;
+  metrics: {
+    totalRevenue: number;
+    revenueGrowth: number;
+    activeSubs: number;
+    activeSubsGrowth: number;
+    churnRate: number;
+    churnRateDelta: number;
+    arpu: number;
+    arpuGrowth: number;
+  };
+  monthlyRevenue: {
+    month: string;
+    amount: number;
+    isCurrent: boolean;
+  }[];
+  planDistribution: PlanDistribution[];
+  recentEvents: SubscriptionEvent[];
+};
+
+export type BillingOverview = {
+  generatedAt: string;
+  hasProductSource: boolean;
+  totalRevenueCents: number;
+  currentMonthCents: number;
+  revenue30dCents: number;
+  revenue7dCents: number;
+  mrr: number;
+  arr: number;
+  arpu: number;
+  activeSubs: number;
+  totalSubs: number;
+  newSubs30d: number;
+  canceledSubs30d: number;
+  churnRate30d: number;
+  failedPayments30d: number;
+  planBreakdown: {
+    planCode: string;
+    planName: string;
+    activeCount: number;
+    percentage: number;
+    mrrCents: number;
+  }[];
+  monthlyRevenue: {
+    month: string;
+    amountCents: number;
+    isCurrent: boolean;
+  }[];
+  recentSubscriptions: BillingRecentSubscriber[];
+};
+
+export type BillingRecentSubscriber = {
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userInitials: string;
+  planCode: string;
+  planName: string;
+  priceCents: number;
+  status: string;
+  startedAt: string | null;
+  updatedAt: string;
+};
+
+export type SupportConversationStatus =
+  | "open"
+  | "pending_customer"
+  | "pending_master"
+  | "resolved"
+  | "archived";
+
+export type SupportViewerRole = "customer" | "master";
+
+export type SupportConversationSummary = {
+  id: string;
+  publicId: string;
+  customerUserId: string | null;
+  assignedOperatorId: string | null;
+  status: SupportConversationStatus;
+  origin: string;
+  subject: string;
+  customerName: string;
+  customerEmail: string;
+  customerAvatarUrl: string | null;
+  customerPlan: string;
+  lastMessagePreview: string;
+  lastMessageAt: string | null;
+  unreadCountForViewer: number;
+  customerUnreadCount: number;
+  masterUnreadCount: number;
+  createdAt: string;
+  updatedAt: string;
+  metadata: Record<string, unknown>;
+};
+
+export type SupportThreadMessage = {
+  id: string;
+  conversationId: string;
+  senderRole: SupportViewerRole;
+  senderUserId: string | null;
+  senderOperatorId: string | null;
+  senderName: string;
+  body: string;
+  contentType: "text";
+  clientMessageId: string | null;
+  deliveredAt: string | null;
+  readAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  metadata: Record<string, unknown>;
+};
+
+export type SupportConversationThread = {
+  conversation: SupportConversationSummary;
+  messages: SupportThreadMessage[];
+  viewerRole: "master";
+  isMaster: true;
+};
+
+export type SupportOperatorIdentity = {
+  operatorId: string;
+  sourceSystem: string;
+  externalOperatorId: string;
+  displayName: string;
+  email: string | null;
+  avatarUrl: string | null;
 };

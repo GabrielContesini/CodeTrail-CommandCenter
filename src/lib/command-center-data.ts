@@ -1,26 +1,23 @@
-import { unstable_noStore as noStore } from "next/cache";
+import { getBillingOverview } from "@/lib/billing-data";
 import {
-  createProductSourceAdminClient,
-  createSupabaseAdminClient,
+    createProductSourceAdminClient,
+    createSupabaseAdminClient,
 } from "@/lib/supabase/server";
 import type {
-  ActivityPoint,
-  CommandCenterSnapshot,
-  DatabaseMetric,
-  FleetNode,
-  IncidentSnapshot,
-  PlatformSnapshot,
-  ReleaseSnapshot,
-  RiskLevel,
-  SupportStatus,
-  UserSnapshot,
+    ActivityPoint,
+    BillingSnapshot,
+    CommandCenterSnapshot,
+    DatabaseMetric,
+    FleetNode,
+    IncidentSnapshot,
+    PlatformSnapshot,
+    ReleaseSnapshot,
+    RiskLevel,
+    SupportStatus,
+    UserSnapshot,
 } from "@/lib/types";
-import {
-  clamp,
-  formatCompactNumber,
-  isoDayKey,
-  startOfDay,
-} from "@/lib/utils";
+import { clamp, formatCompactNumber, isoDayKey, startOfDay } from "@/lib/utils";
+import { unstable_noStore as noStore } from "next/cache";
 
 // Supabase builders are heavily generic and become noisy here; keep this
 // adapter narrow so the rest of the file can stay strictly typed.
@@ -105,6 +102,7 @@ type AuthUserRow = {
   id: string;
   email?: string;
   last_sign_in_at?: string | null;
+  updated_at?: string | null;
 };
 
 const TABLE_DESCRIPTIONS: Array<{
@@ -187,16 +185,14 @@ function getEmptyCommandCenterSnapshot(
     releases: [],
     systems: [],
     users: [],
-    database: deriveDatabaseMetrics(
-      {
-        profiles: 0,
-        study_sessions: 0,
-        tasks: 0,
-        reviews: 0,
-        study_notes: 0,
-        sync_queue: 0,
-      },
-    ),
+    database: deriveDatabaseMetrics({
+      profiles: 0,
+      study_sessions: 0,
+      tasks: 0,
+      reviews: 0,
+      study_notes: 0,
+      sync_queue: 0,
+    }),
     incidents: [],
   };
 }
@@ -250,25 +246,43 @@ async function safeSelect<T>(
   }
 }
 
-async function safeListAuthUsers(client: ReturnType<typeof createSupabaseAdminClient>) {
+async function safeListAuthUsers(
+  client: ReturnType<typeof createSupabaseAdminClient>,
+) {
   if (!client) {
     return null;
   }
 
   try {
-    const { data, error } = await client.auth.admin.listUsers({
-      page: 1,
-      perPage: 100,
-    });
-    if (error) {
-      return null;
+    const users: AuthUserRow[] = [];
+    const pageSize = 100;
+
+    for (let page = 1; page <= 20; page += 1) {
+      const { data, error } = await client.auth.admin.listUsers({
+        page,
+        perPage: pageSize,
+      });
+
+      if (error) {
+        return null;
+      }
+
+      const batch = data.users ?? [];
+      users.push(
+        ...batch.map<AuthUserRow>((user) => ({
+          id: user.id,
+          email: user.email,
+          last_sign_in_at: user.last_sign_in_at,
+          updated_at: user.updated_at,
+        })),
+      );
+
+      if (batch.length < pageSize) {
+        break;
+      }
     }
 
-    return (data.users ?? []).map<AuthUserRow>((user) => ({
-      id: user.id,
-      email: user.email,
-      last_sign_in_at: user.last_sign_in_at,
-    }));
+    return users;
   } catch {
     return null;
   }
@@ -340,7 +354,9 @@ function deriveUsers(
     return [];
   }
 
-  const tracksById = new Map((tracks ?? []).map((track) => [track.id, track.name]));
+  const tracksById = new Map(
+    (tracks ?? []).map((track) => [track.id, track.name]),
+  );
   const authById = new Map((authUsers ?? []).map((user) => [user.id, user]));
   const watchlistById = new Map(
     (watchlist ?? []).map((row) => [row.profile_id, row]),
@@ -367,7 +383,10 @@ function deriveUsers(
   }
 
   for (const item of syncQueue ?? []) {
-    const current = syncStats.get(item.user_id) ?? { pending: 0, errorCount: 0 };
+    const current = syncStats.get(item.user_id) ?? {
+      pending: 0,
+      errorCount: 0,
+    };
     current.pending += 1;
     if (item.last_error) {
       current.errorCount += 1;
@@ -395,6 +414,7 @@ function deriveUsers(
             : "healthy";
       const lastSeenCandidates = [
         authUser?.last_sign_in_at,
+        authUser?.updated_at,
         study?.lastSeenAt,
         profile.updated_at,
       ].filter(Boolean) as string[];
@@ -405,7 +425,8 @@ function deriveUsers(
         name: profile.full_name || authUser?.email || "Usuario sem nome",
         email: authUser?.email ?? profile.email ?? "sem-email@codetrail.local",
         desiredArea: profile.desired_area,
-        trackName: tracksById.get(profile.selected_track_id ?? "") ?? "Sem trilha",
+        trackName:
+          tracksById.get(profile.selected_track_id ?? "") ?? "Sem trilha",
         onboardingCompleted: profile.onboarding_completed,
         lastSeenAt,
         activeStreak: study?.days.size ?? 0,
@@ -471,7 +492,9 @@ function deriveFleet(
       environment: instance.environment,
       lastSeenAt: instance.last_seen_at,
       activeUsers:
-        instance.platform === "android" ? activeUsers : clamp(activeUsers / 4, 0, 999),
+        instance.platform === "android"
+          ? activeUsers
+          : clamp(activeUsers / 4, 0, 999),
       pendingSync,
       uptimePercent:
         instance.status === "up"
@@ -483,10 +506,7 @@ function deriveFleet(
   });
 }
 
-function deriveSystems(
-  fleet: FleetNode[],
-  heartbeats: HeartbeatRow[] | null,
-) {
+function deriveSystems(fleet: FleetNode[], heartbeats: HeartbeatRow[] | null) {
   const windowsFleet = fleet.filter((node) => node.platform === "windows");
   if (!windowsFleet.length) {
     return [];
@@ -634,7 +654,8 @@ function deriveIncidents(
       openedAt: new Date().toISOString(),
       resolvedAt: null,
       summary: `${downNodes.length} instancia(s) estao sem heartbeat dentro da janela esperada.`,
-      action: "Verificar conectividade, versao instalada e ultimo deploy da frota.",
+      action:
+        "Verificar conectividade, versao instalada e ultimo deploy da frota.",
       context: {},
     });
   }
@@ -650,7 +671,8 @@ function deriveIncidents(
       resolvedAt: null,
       summary:
         "A fila de sincronizacao ou o status da frota exigem nova rodada de retries e observacao do Supabase.",
-      action: "Abrir a tela de diagnostico, confirmar retries e checar os clientes com maior backlog.",
+      action:
+        "Abrir a tela de diagnostico, confirmar retries e checar os clientes com maior backlog.",
       context: {},
     });
   }
@@ -673,9 +695,7 @@ function deriveIncidents(
   return derived;
 }
 
-function deriveDatabaseMetrics(
-  counts: Record<string, number | null>,
-) {
+function deriveDatabaseMetrics(counts: Record<string, number | null>) {
   const values = TABLE_DESCRIPTIONS.map<DatabaseMetric>((table) => ({
     tableName: table.tableName,
     label: table.label,
@@ -773,36 +793,37 @@ export async function getCommandCenterSnapshot(): Promise<CommandCenterSnapshot>
       "ops_incidents",
       "id, severity, title, source, status, opened_at, resolved_at, summary, suggested_action, context",
       (query) => query.order("opened_at", { ascending: false }).limit(20),
-    ).then((rows) =>
-      rows?.map<IncidentSnapshot>((incident) => ({
-        id: incident.id,
-        severity: incident.severity,
-        title: incident.title,
-        source: incident.source,
-        status: incident.status,
-        openedAt: incident.opened_at,
-        resolvedAt: incident.resolved_at,
-        summary: incident.summary,
-        action: incident.suggested_action,
-        context: {
-          profileId:
-            typeof incident.context?.profileId === "string"
-              ? incident.context.profileId
-              : null,
-          instanceId:
-            typeof incident.context?.instanceId === "string"
-              ? incident.context.instanceId
-              : null,
-          platform:
-            typeof incident.context?.platform === "string"
-              ? (incident.context.platform as FleetNode["platform"])
-              : null,
-          version:
-            typeof incident.context?.version === "string"
-              ? incident.context.version
-              : null,
-        },
-      })) ?? null,
+    ).then(
+      (rows) =>
+        rows?.map<IncidentSnapshot>((incident) => ({
+          id: incident.id,
+          severity: incident.severity,
+          title: incident.title,
+          source: incident.source,
+          status: incident.status,
+          openedAt: incident.opened_at,
+          resolvedAt: incident.resolved_at,
+          summary: incident.summary,
+          action: incident.suggested_action,
+          context: {
+            profileId:
+              typeof incident.context?.profileId === "string"
+                ? incident.context.profileId
+                : null,
+            instanceId:
+              typeof incident.context?.instanceId === "string"
+                ? incident.context.instanceId
+                : null,
+            platform:
+              typeof incident.context?.platform === "string"
+                ? (incident.context.platform as FleetNode["platform"])
+                : null,
+            version:
+              typeof incident.context?.version === "string"
+                ? incident.context.version
+                : null,
+          },
+        })) ?? null,
     ),
     safeListAuthUsers(productAdmin),
   ]);
@@ -826,22 +847,15 @@ export async function getCommandCenterSnapshot(): Promise<CommandCenterSnapshot>
   const systems = deriveSystems(fleet, heartbeats);
   const pendingSync = syncQueueCount ?? 0;
   const activity = groupActivity(sessions, syncQueue);
-  const database = deriveDatabaseMetrics(
-    {
-      profiles: profilesCount,
-      study_sessions: sessionsCount,
-      tasks: tasksCount,
-      reviews: reviewsCount,
-      study_notes: notesCount,
-      sync_queue: syncQueueCount,
-    },
-  );
-  const incidentList = deriveIncidents(
-    incidents,
-    fleet,
-    pendingSync,
-    users,
-  );
+  const database = deriveDatabaseMetrics({
+    profiles: profilesCount,
+    study_sessions: sessionsCount,
+    tasks: tasksCount,
+    reviews: reviewsCount,
+    study_notes: notesCount,
+    sync_queue: syncQueueCount,
+  });
+  const incidentList = deriveIncidents(incidents, fleet, pendingSync, users);
   const criticalIncidents = incidentList.filter(
     (incident) => incident.severity === "critical",
   ).length;
@@ -886,7 +900,9 @@ export async function getCommandCenterSnapshot(): Promise<CommandCenterSnapshot>
         value: `${fleet.filter((node) => node.status === "up").length}/${fleet.length}`,
         delta: `${fleet.filter((node) => node.status !== "up").length} nodo(s) exigem atencao`,
         hint: "Heartbeat consolidado por instancia monitorada.",
-        tone: fleet.some((node) => node.status === "down") ? "critical" : "good",
+        tone: fleet.some((node) => node.status === "down")
+          ? "critical"
+          : "good",
       },
       {
         label: "Incidentes criticos",
@@ -904,5 +920,80 @@ export async function getCommandCenterSnapshot(): Promise<CommandCenterSnapshot>
     users,
     database,
     incidents: incidentList,
+  };
+}
+
+export async function getBillingSnapshot(): Promise<BillingSnapshot> {
+  noStore();
+  const generatedAt = new Date().toISOString();
+
+  const overview = await getBillingOverview();
+
+  if (!overview.hasProductSource) {
+    // Fallback: product source not configured
+    return {
+      mode: "empty",
+      generatedAt,
+      metrics: {
+        totalRevenue: 0,
+        revenueGrowth: 0,
+        activeSubs: 0,
+        activeSubsGrowth: 0,
+        churnRate: 0,
+        churnRateDelta: 0,
+        arpu: 0,
+        arpuGrowth: 0,
+      },
+      monthlyRevenue: [],
+      planDistribution: [],
+      recentEvents: [],
+    };
+  }
+
+  const planColorMap: Record<string, string> = {
+    free: "bg-neutral-600",
+    pro: "bg-cyan-400",
+    founding: "bg-cyan-700",
+  };
+
+  return {
+    mode: "supabase",
+    generatedAt,
+    metrics: {
+      totalRevenue: Math.round(overview.totalRevenueCents / 100),
+      revenueGrowth: 0,
+      activeSubs: overview.activeSubs,
+      activeSubsGrowth: 0,
+      churnRate: Math.round(overview.churnRate30d * 10) / 10,
+      churnRateDelta: 0,
+      arpu: Math.round(overview.arpu / 100),
+      arpuGrowth: 0,
+    },
+    monthlyRevenue: overview.monthlyRevenue.map((m) => ({
+      month: m.month.slice(5),
+      amount: Math.round(m.amountCents / 100),
+      isCurrent: m.isCurrent,
+    })),
+    planDistribution: overview.planBreakdown.map((p, idx) => ({
+      id: p.planCode,
+      name: p.planName,
+      userCount: p.activeCount,
+      percentage: p.percentage,
+      color:
+        planColorMap[p.planCode] ??
+        (idx % 2 === 0 ? "bg-cyan-400" : "bg-cyan-700"),
+    })),
+    recentEvents: overview.recentSubscriptions.slice(0, 5).map((s, idx) => ({
+      id: `sub_${idx}`,
+      userId: s.userId,
+      userName: s.userName,
+      userEmail: s.userEmail,
+      userInitials: s.userInitials,
+      eventType: s.status === "trialing" ? "Trial" : "Subscription",
+      timeAgo: "",
+      planType: s.planName,
+      amount: s.priceCents / 100,
+      status: "success" as const,
+    })),
   };
 }

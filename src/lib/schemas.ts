@@ -1,5 +1,5 @@
-import { z } from "zod";
 import type { AdminRole } from "@/lib/types";
+import { z } from "zod";
 
 const adminRoleOptions = [
   "owner",
@@ -58,6 +58,18 @@ export const bootstrapOwnerPayloadSchema = z.object({
   email: z.email().max(160),
   password: z.string().min(8).max(128),
   displayName: z.string().trim().min(2).max(120),
+});
+
+export const productUserUpdatePayloadSchema = z.object({
+  fullName: z.string().trim().min(2).max(120),
+});
+
+export const productUserBanPayloadSchema = z.object({
+  banned: z.boolean(),
+});
+
+export const productUserSubscriptionPayloadSchema = z.object({
+  planCode: z.string().trim().min(1).max(64),
 });
 
 export const incidentPayloadSchema = z.object({

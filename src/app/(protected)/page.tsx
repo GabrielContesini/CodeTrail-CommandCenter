@@ -1,285 +1,418 @@
-'use client';
+import { DashboardBento } from "@/components/dashboard/dashboard-bento";
+import { getCommandCenterSnapshot } from "@/lib/command-center-data";
+import { clamp, formatCompactNumber } from "@/lib/utils";
+import {
+  createProductSourceAdminClient,
+  createSupabaseAdminClient,
+} from "@/lib/supabase/server";
 
-import { MaterialIcon } from '@/components/icons/material-icon';
-import { cn } from '@/lib/utils';
+export const dynamic = "force-dynamic";
 
-export const dynamic = 'force-dynamic';
+const ONLINE_WINDOW_MINUTES = 60;
+const PERFORMANCE_WINDOW_HOURS = 12;
 
-// Mock data - será substituído por dados reais
-const mockData = {
-  users: Array(846).fill(null),
-  systems: Array(12).fill(null),
-  services: [
-    { name: 'Main API Gateway', status: 'online' as const },
-    { name: 'Auth Microservice', status: 'degrading' as const },
-    { name: 'Legacy Sync', status: 'offline' as const },
-  ],
-  endpoints: [
-    { path: '/api/v1/auth', requests: '2.4k/s' },
-    { path: '/api/v1/users', requests: '1.8k/s' },
-    { path: '/api/v1/billing', requests: '0.4k/s' },
-  ],
-  totalSubscribers: 12482,
-  peakToday: 2104,
+type SessionPresenceRow = {
+  user_id: string;
+  start_time: string;
 };
 
-export default function DashboardPage() {
+type ProductProfileRow = {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+};
+
+type HeartbeatPerformanceRow = {
+  created_at: string;
+  cpu_percent: number | null;
+  memory_percent: number | null;
+  disk_percent: number | null;
+};
+
+type SubscriptionMembershipRow = {
+  user_id: string;
+  status: string;
+  updated_at: string;
+  plans:
+    | {
+        code: string;
+        name: string;
+      }
+    | Array<{
+        code: string;
+        name: string;
+      }>
+    | null;
+};
+
+function averageMetric(values: Array<number | null | undefined>) {
+  const normalized = values.filter(
+    (value): value is number => typeof value === "number" && Number.isFinite(value),
+  );
+
+  if (!normalized.length) {
+    return 0;
+  }
+
+  return Math.round((normalized.reduce((sum, value) => sum + value, 0) / normalized.length) * 10) / 10;
+}
+
+function buildAvatarSource(userId: string, avatarUrl?: string | null) {
+  const normalized = avatarUrl?.trim();
+
+  if (normalized && /^https?:\/\//i.test(normalized)) {
+    return normalized;
+  }
+
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`;
+}
+
+function buildPerformanceChartData(
+  rows: HeartbeatPerformanceRow[],
+  fallback: { cpu: number; memory: number; disk: number },
+) {
+  const formatter = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit" });
+  const currentHour = new Date();
+  currentHour.setMinutes(0, 0, 0);
+
+  const buckets = Array.from({ length: PERFORMANCE_WINDOW_HOURS }, (_, index) => {
+    const date = new Date(currentHour);
+    date.setHours(currentHour.getHours() - (PERFORMANCE_WINDOW_HOURS - 1 - index));
+
+    return {
+      key: date.toISOString().slice(0, 13),
+      label: `${formatter.format(date)}h`,
+      cpuValues: [] as number[],
+      memoryValues: [] as number[],
+      diskValues: [] as number[],
+    };
+  });
+
+  const bucketsByHour = new Map(buckets.map((bucket) => [bucket.key, bucket]));
+
+  for (const row of rows) {
+    const date = new Date(row.created_at);
+    date.setMinutes(0, 0, 0);
+    const bucket = bucketsByHour.get(date.toISOString().slice(0, 13));
+
+    if (!bucket) {
+      continue;
+    }
+
+    if (typeof row.cpu_percent === "number") {
+      bucket.cpuValues.push(row.cpu_percent);
+    }
+    if (typeof row.memory_percent === "number") {
+      bucket.memoryValues.push(row.memory_percent);
+    }
+    if (typeof row.disk_percent === "number") {
+      bucket.diskValues.push(row.disk_percent);
+    }
+  }
+
+  const chartData = buckets.map((bucket) => ({
+    label: bucket.label,
+    cpu: bucket.cpuValues.length ? averageMetric(bucket.cpuValues) : null,
+    memory: bucket.memoryValues.length ? averageMetric(bucket.memoryValues) : null,
+    disk: bucket.diskValues.length ? averageMetric(bucket.diskValues) : null,
+  }));
+
+  if (chartData.some((point) => point.cpu !== null || point.memory !== null || point.disk !== null)) {
+    return chartData;
+  }
+
+  return [
+    {
+      label: "Agora",
+      cpu: fallback.cpu,
+      memory: fallback.memory,
+      disk: fallback.disk,
+    },
+  ];
+}
+
+async function getLatestPaidMembershipBreakdown(
+  client: ReturnType<typeof createProductSourceAdminClient>,
+) {
+  if (!client) {
+    return { pro: 0, founding: 0 };
+  }
+
+  try {
+    const pageSize = 200;
+    const latestByUser = new Map<string, SubscriptionMembershipRow>();
+
+    for (let from = 0; from <= 2000; from += pageSize) {
+      const { data, error } = await client
+        .from("subscriptions")
+        .select("user_id, status, updated_at, plans(code, name)")
+        .order("updated_at", { ascending: false })
+        .range(from, from + pageSize - 1);
+
+      if (error) {
+        return { pro: 0, founding: 0 };
+      }
+
+      const rows = (data ?? []) as SubscriptionMembershipRow[];
+
+      for (const row of rows) {
+        if (!row.user_id || latestByUser.has(row.user_id)) {
+          continue;
+        }
+
+        latestByUser.set(row.user_id, row);
+      }
+
+      if (rows.length < pageSize) {
+        break;
+      }
+    }
+
+    let pro = 0;
+    let founding = 0;
+
+    for (const row of latestByUser.values()) {
+      const plan = Array.isArray(row.plans) ? row.plans[0] : row.plans;
+      if (plan?.code === "pro") {
+        pro += 1;
+      } else if (plan?.code === "founding") {
+        founding += 1;
+      }
+    }
+
+    return { pro, founding };
+  } catch {
+    return { pro: 0, founding: 0 };
+  }
+}
+
+export default async function DashboardPage() {
+  const initialSnapshot = await getCommandCenterSnapshot();
+  const opsAdmin = createSupabaseAdminClient();
+  const productAdmin = createProductSourceAdminClient();
+  const snapshotTime = new Date(initialSnapshot.generatedAt).getTime();
+
+  const onlineSinceIso = new Date(
+    snapshotTime - ONLINE_WINDOW_MINUTES * 60 * 1000,
+  ).toISOString();
+  const performanceSinceIso = new Date(
+    snapshotTime - PERFORMANCE_WINDOW_HOURS * 60 * 60 * 1000,
+  ).toISOString();
+
+  const [snapshot, paidMemberships, onlineSessionsResult, heartbeatsResult] =
+    await Promise.all([
+      Promise.resolve(initialSnapshot),
+      getLatestPaidMembershipBreakdown(productAdmin),
+      productAdmin
+        ? productAdmin
+            .from("study_sessions")
+            .select("user_id, start_time")
+            .gte("start_time", onlineSinceIso)
+            .order("start_time", { ascending: false })
+            .limit(800)
+        : Promise.resolve({ data: null, error: null }),
+      opsAdmin
+        ? opsAdmin
+            .from("ops_heartbeats")
+            .select("created_at, cpu_percent, memory_percent, disk_percent")
+            .gte("created_at", performanceSinceIso)
+            .order("created_at", { ascending: true })
+            .limit(1000)
+        : Promise.resolve({ data: null, error: null }),
+    ]);
+
+  const activity = snapshot.activity;
+  const stats = snapshot.metrics.slice(0, 4).map((metric, idx) => ({
+    label: metric.label,
+    value: metric.value,
+    delta: metric.delta ?? "Stable",
+    deltaColor:
+      metric.tone === "good"
+        ? ("emerald" as const)
+        : metric.tone === "warning"
+          ? ("amber" as const)
+          : ("rose" as const),
+    progress: clamp(20 + idx * 20, 5, 100),
+  }));
+
+  const apiStatuses = snapshot.systems
+    .slice()
+    .sort((a, b) => {
+      const weight = { down: 2, degraded: 1, up: 0 } as const;
+      return weight[b.status] - weight[a.status];
+    })
+    .slice(0, 4)
+    .map((system) => ({
+      name: system.machineName || system.id,
+      status:
+        system.status === "up"
+          ? ("online" as const)
+          : system.status === "degraded"
+            ? ("degrading" as const)
+            : ("offline" as const),
+    }));
+
+  if (apiStatuses.length === 0) {
+    apiStatuses.push(
+      { name: "Auth Service", status: "online" as const },
+      { name: "Database", status: "online" as const },
+      { name: "API Gateway", status: "online" as const },
+    );
+  }
+
+  const onlineSessions = (onlineSessionsResult.data ?? []) as SessionPresenceRow[];
+  const orderedOnlineUserIds: string[] = [];
+  const seenOnlineUserIds = new Set<string>();
+
+  for (const session of onlineSessions) {
+    if (!session.user_id || seenOnlineUserIds.has(session.user_id)) {
+      continue;
+    }
+
+    seenOnlineUserIds.add(session.user_id);
+    orderedOnlineUserIds.push(session.user_id);
+  }
+
+  for (const user of snapshot.users.slice().sort((left, right) => right.lastSeenAt.localeCompare(left.lastSeenAt))) {
+    if (new Date(user.lastSeenAt).toISOString() < onlineSinceIso) {
+      continue;
+    }
+
+    if (seenOnlineUserIds.has(user.id)) {
+      continue;
+    }
+
+    seenOnlineUserIds.add(user.id);
+    orderedOnlineUserIds.push(user.id);
+  }
+
+  let onlineProfiles: ProductProfileRow[] = [];
+
+  if (productAdmin && orderedOnlineUserIds.length > 0) {
+    const { data } = await productAdmin
+      .from("profiles")
+      .select("id, full_name, email, avatar_url")
+      .in("id", orderedOnlineUserIds.slice(0, 24));
+
+    onlineProfiles = (data ?? []) as ProductProfileRow[];
+  }
+
+  const onlineProfilesById = new Map(onlineProfiles.map((profile) => [profile.id, profile]));
+  const avatars = orderedOnlineUserIds.slice(0, 8).map((userId) => {
+    const profile = onlineProfilesById.get(userId);
+    const fallbackUser = snapshot.users.find((user) => user.id === userId);
+    const name =
+      profile?.full_name?.trim() ||
+      fallbackUser?.name ||
+      profile?.email ||
+      "Usuario online";
+
+    return {
+      src: buildAvatarSource(userId, profile?.avatar_url),
+      alt: name,
+      name,
+    };
+  });
+
+  const activeUsers = orderedOnlineUserIds.length;
+  const peakToday = Math.max(activeUsers, ...activity.map((point) => point.activeUsers), 0);
+  const maxCapacity = Math.max(Math.ceil(Math.max(peakToday, 1) * 1.15), 10);
+
+  const proUsersCount = paidMemberships.pro;
+  const foundingUsersCount = paidMemberships.founding;
+  const growthValue = proUsersCount + foundingUsersCount;
+  const growthBreakdown = [
+    {
+      label: "Pro",
+      value: proUsersCount,
+      accent: "cyan" as const,
+    },
+    {
+      label: "Founding",
+      value: foundingUsersCount,
+      accent: "violet" as const,
+    },
+  ];
+
+  const performanceRows = (heartbeatsResult.data ?? []) as HeartbeatPerformanceRow[];
+  const performanceAverages = {
+    cpu: averageMetric(snapshot.systems.map((system) => system.cpuPercent)),
+    memory: averageMetric(snapshot.systems.map((system) => system.memoryPercent)),
+    disk: averageMetric(snapshot.systems.map((system) => system.diskPercent)),
+  };
+  const performanceChartData = buildPerformanceChartData(
+    performanceRows,
+    performanceAverages,
+  );
+  const performanceLastHeartbeatAt =
+    performanceRows.at(-1)?.created_at ??
+    snapshot.systems
+      .map((system) => system.lastSeenAt)
+      .sort((left, right) => right.localeCompare(left))
+      .at(0) ??
+    null;
+
+  const recentIncidents = snapshot.incidents.slice(0, 5).map((incident) => ({
+    id: incident.id,
+    title: incident.title,
+    severity: incident.severity,
+    status: incident.status,
+    source: incident.source,
+    openedAt: incident.openedAt,
+  }));
+
+  const quickActions = [
+    {
+      label: "Ver Usuarios",
+      href: "/users",
+      icon: "group",
+    },
+    {
+      label: "Incidentes",
+      href: "/incidents",
+      icon: "warning",
+    },
+    {
+      label: "Sistemas",
+      href: "/systems",
+      icon: "dns",
+    },
+    {
+      label: "Database",
+      href: "/database",
+      icon: "storage",
+    },
+  ];
+
+  const dashboardProps = {
+    title: "Dashboard Principal",
+    subtitle: "Operational overview and global user metrics.",
+    stats,
+    apiStatuses,
+    growthValue,
+    growthLabel: "Usuarios com plano Pro ou Founding",
+    growthMetaLabel: `${formatCompactNumber(proUsersCount)} Pro • ${formatCompactNumber(foundingUsersCount)} Founding`,
+    growthBreakdown,
+    activeUsers,
+    activeUsersLabel: `atividade nos ultimos ${ONLINE_WINDOW_MINUTES} min`,
+    peakToday,
+    maxCapacity,
+    avatars,
+    performance: {
+      averages: performanceAverages,
+      chartData: performanceChartData,
+      monitoredNodes: snapshot.systems.length,
+      lastHeartbeatAt: performanceLastHeartbeatAt,
+    },
+    incidents: recentIncidents,
+    quickActions,
+  } as const;
+
   return (
     <main className="pt-24 pb-12 pl-64 pr-8 lg:pr-12 min-h-screen bg-background">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Welcome & Status Header */}
-        <section className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-          <div>
-            <h2 className="text-3xl font-black text-white tracking-tight">Dashboard Principal</h2>
-            <p className="text-neutral-400 mt-1">Operational overview and global user metrics.</p>
-          </div>
-          <div className="flex gap-4">
-            <button className="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg font-bold text-sm shadow-lg shadow-cyan-500/20 hover:brightness-110 active:scale-95 transition-all">
-              Execute Backup
-            </button>
-            <button className="bg-surface-container-high text-white px-6 py-2.5 rounded-lg font-bold text-sm border border-outline-variant/30 hover:bg-surface-bright transition-all">
-              Export Logs
-            </button>
-          </div>
-        </section>
-
-        {/* Bento Grid Metrics - 4-5-3-8-4 columns */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          {/* Card 1: Real-time API Status (md:col-span-4) */}
-          <div className="md:col-span-4 glass-card p-6 rounded-xl flex flex-col justify-between overflow-hidden relative group">
-            <div className="relative z-10">
-              <div className="flex justify-between items-start mb-4">
-                <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Real-time API Status</span>
-                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              </div>
-              <div className="space-y-4">
-                {mockData.services.map((service) => (
-                  <div
-                    key={service.name}
-                    className={cn(
-                      'flex items-center justify-between p-3 rounded-lg border',
-                      service.status === 'online'
-                        ? 'bg-emerald-500/10 border-emerald-500/20'
-                        : service.status === 'degrading'
-                          ? 'bg-amber-500/10 border-amber-500/20'
-                          : 'bg-rose-500/10 border-rose-500/20'
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <MaterialIcon
-                        name={
-                          service.status === 'online'
-                            ? 'check_circle'
-                            : service.status === 'degrading'
-                              ? 'warning'
-                              : 'cancel'
-                        }
-                        className={cn(
-                          'text-sm',
-                          service.status === 'online'
-                            ? 'text-emerald-500'
-                            : service.status === 'degrading'
-                              ? 'text-amber-500'
-                              : 'text-rose-500'
-                        )}
-                      />
-                      <span
-                        className={cn(
-                          'text-sm font-medium',
-                          service.status === 'online'
-                            ? 'text-emerald-200'
-                            : service.status === 'degrading'
-                              ? 'text-amber-200'
-                              : 'text-rose-200'
-                        )}
-                      >
-                        {service.name}
-                      </span>
-                    </div>
-                    <span
-                      className={cn(
-                        'text-[10px] font-bold',
-                        service.status === 'online'
-                          ? 'text-emerald-500'
-                          : service.status === 'degrading'
-                            ? 'text-amber-500'
-                            : 'text-rose-500'
-                      )}
-                    >
-                      {service.status.toUpperCase()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="absolute -bottom-8 -right-8 opacity-5 group-hover:opacity-10 transition-opacity">
-              <MaterialIcon name="api" className="text-9xl" />
-            </div>
-          </div>
-
-          {/* Card 2: Growth Metrics (md:col-span-5) */}
-          <div className="md:col-span-5 glass-card p-6 rounded-xl flex flex-col justify-between bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent">
-            <div>
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Growth Metrics</span>
-                <span className="bg-primary-container/20 text-cyan-400 px-2 py-1 rounded text-[10px] font-bold">+12% WoW</span>
-              </div>
-              <h3 className="text-5xl font-black text-white mb-2">{mockData.totalSubscribers.toLocaleString()}</h3>
-              <p className="text-sm text-neutral-400">Total Registered Subscribers</p>
-            </div>
-            <div className="mt-8 flex items-end gap-1 h-24">
-              {[40, 60, 55, 75, 90, 100].map((height, i) => (
-                <div key={i} className="flex-1 bg-cyan-400/20 rounded-t-sm" style={{ height: `${height}%` }}></div>
-              ))}
-            </div>
-          </div>
-
-          {/* Card 3: Active Users (md:col-span-3) */}
-          <div className="md:col-span-3 glass-card p-6 rounded-xl flex flex-col justify-between">
-            <div>
-              <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-4 block">Active Users</span>
-              <div className="flex items-center gap-4">
-                <div className="flex -space-x-3">
-                  <img
-                    alt="User 1"
-                    className="w-10 h-10 rounded-full border-2 border-neutral-900 object-cover"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL677WbZ-TvdVm6WPhOGkZbEjhcs-VGMYtiLGJPDvhfhNoCXYYm8KQkJy1RKycy8p5OhXTwnP5xanghvn8ymf0t6820K48FVpfj8YSWx6n440Tp1ND7lgkk1-jk1II6uT5H84ejGvPUm1XjV_NdK_3SSuZTA1VWmBjdAUd7DFK6m8gvkPxOeDMGCfRl5CPSFObZU5hA5GJnVsacCizPyxnax4doQz09NWr5TTv9_k-RaXjwU4h5J-c0BjjYrwj01p9rqrHRpCEYKg"
-                  />
-                  <img
-                    alt="User 2"
-                    className="w-10 h-10 rounded-full border-2 border-neutral-900 object-cover"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTY5RhXq6V_AxJv0fXtFy-4wwPRIVdGdPZaDc4Jfq5zjMrFebnKtPT53w-9A9R8eccj3qb7hv_p6ZYrXTYZJaYpiQEgapiNtOeOHpkagadISnRe6PRx2qHC3LClqCE7nFXj0kHMPvz8l6UJb3KM0ezpi793kfZsg7JJh1B-KQ1E29hB2eAOKUtK2yyKxFOjTKeLgsRu2z3ymQ3P0hc7-Kknk5gzRNeL4WvXKPomaxSx2ue8npycTeSF6rOFR2tVliK_5xoDlQIAM4"
-                  />
-                  <img
-                    alt="User 3"
-                    className="w-10 h-10 rounded-full border-2 border-neutral-900 object-cover"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtPlBZP1P-_RKiC9912sGSAHwyCaM31rEYz-rOluOL-1HwwQEsYVUeW1sC2VF2a9mjGvUqi3s9wUafCRGgsZU4-mRZcNDmbfNGs7_WjyfodDRqnubVASPXzjELwknf0AQVpsae2r67gmTJaeHqkS67gUzV0gBxO0h5AhIfW7x-fQjoaZl7-qs5u_cZeOvBot0mbEcHF8bzkJtdWfINayjMhk-kPIZK09mZVZOvj4koG4lzklx7qEIjSlYg2QENSuStXoEF9nsKfJE"
-                  />
-                  <div className="w-10 h-10 rounded-full border-2 border-neutral-900 bg-neutral-800 flex items-center justify-center text-[10px] font-bold text-white">
-                    +842
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-6 border-t border-neutral-800 pt-4">
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-neutral-400">Peak Today</span>
-                <span className="text-white font-bold">{mockData.peakToday.toLocaleString()}</span>
-              </div>
-              <div className="w-full bg-neutral-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-cyan-400 h-full w-[85%]"></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 4: Analytics Chart (md:col-span-8) */}
-          <div className="md:col-span-8 glass-card rounded-xl overflow-hidden flex flex-col">
-            <div className="p-6 border-b border-neutral-800 flex justify-between items-center">
-              <div>
-                <h4 className="text-white font-bold">System Performance Analytics</h4>
-                <p className="text-xs text-neutral-500">Last 24 hours traffic analysis</p>
-              </div>
-              <div className="flex gap-2">
-                <button className="bg-neutral-800 text-[10px] uppercase tracking-tighter font-bold px-3 py-1 rounded text-neutral-300 border border-neutral-700">
-                  Hour
-                </button>
-                <button className="bg-primary-container text-on-primary-container text-[10px] uppercase tracking-tighter font-bold px-3 py-1 rounded">
-                  Day
-                </button>
-                <button className="bg-neutral-800 text-[10px] uppercase tracking-tighter font-bold px-3 py-1 rounded text-neutral-300 border border-neutral-700">
-                  Week
-                </button>
-              </div>
-            </div>
-            <div className="flex-1 p-6 flex items-center justify-center">
-              <div className="w-full h-64 relative">
-                {/* Decorative SVG Graph */}
-                <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                  <defs>
-                    <linearGradient id="cyanGrad" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.3" />
-                      <stop offset="100%" stopColor="#00E5FF" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M0 35 Q 10 32, 20 25 T 40 15 T 60 22 T 80 10 T 100 18 L 100 40 L 0 40 Z"
-                    fill="url(#cyanGrad)"
-                  ></path>
-                  <path
-                    d="M0 35 Q 10 32, 20 25 T 40 15 T 60 22 T 80 10 T 100 18"
-                    fill="none"
-                    stroke="#00E5FF"
-                    strokeLinecap="round"
-                    strokeWidth="0.5"
-                  ></path>
-                </svg>
-                {/* Tooltip Mockup */}
-                <div className="absolute top-[20%] left-[60%] -translate-x-1/2 -translate-y-full bg-neutral-900 border border-cyan-400 p-2 rounded shadow-xl">
-                  <p className="text-[10px] text-cyan-400 font-bold mb-1">Peak Traffic</p>
-                  <p className="text-xs text-white">12,4k requests/sec</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 5: Memory Usage Sidebar (md:col-span-4) */}
-          <div className="md:col-span-4 space-y-4">
-            <div className="glass-card p-5 rounded-xl border-l-4 border-l-cyan-400">
-              <div className="flex items-center gap-3 mb-3">
-                <MaterialIcon name="memory" className="text-cyan-400 text-lg" />
-                <p className="text-xs font-bold text-white">Cluster Health</p>
-              </div>
-              <p className="text-xs text-neutral-400 mb-4">
-                All {mockData.systems.length} nodes reporting healthy status within specified parameters.
-              </p>
-              <div className="grid grid-cols-4 gap-1">
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={cn('h-1 rounded-full', i < 3 ? 'bg-cyan-400' : 'bg-cyan-400/20')}
-                  ></div>
-                ))}
-              </div>
-            </div>
-
-            <div className="glass-card p-5 rounded-xl">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-xs font-bold text-white">Top Endpoints</p>
-                <MaterialIcon name="open_in_new" className="text-neutral-500 text-sm" />
-              </div>
-              <ul className="space-y-3">
-                {mockData.endpoints.map((endpoint) => (
-                  <li key={endpoint.path} className="flex items-center justify-between text-xs">
-                    <span className="text-neutral-500">{endpoint.path}</span>
-                    <span className="text-white font-mono">{endpoint.requests}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="p-1 rounded-xl bg-gradient-to-tr from-cyan-400/50 to-purple-500/50">
-              <div className="bg-neutral-900 rounded-[7px] p-5 h-full flex flex-col justify-between">
-                <p className="text-xs font-bold text-white mb-2">Security Shield</p>
-                <div className="flex items-center gap-2 mb-4">
-                  <MaterialIcon
-                    name="shield_with_heart"
-                    className="text-cyan-400 text-3xl"
-                    filled
-                  />
-                  <span className="text-xl font-black text-white">ACTIVE</span>
-                </div>
-                <p className="text-[10px] text-neutral-500">244 attempted breaches blocked this session.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* FAB - Floating Action Button */}
-      <div className="fixed bottom-8 right-8 z-50">
-        <button className="bg-primary-container text-on-primary-container w-14 h-14 rounded-full shadow-2xl shadow-cyan-400/40 flex items-center justify-center group active:scale-90 transition-all">
-          <MaterialIcon name="add" className="text-2xl" filled />
-        </button>
+        <DashboardBento {...dashboardProps} />
       </div>
     </main>
   );

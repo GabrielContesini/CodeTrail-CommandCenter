@@ -1,0 +1,99 @@
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\app\(protected)\admin\page.tsx
+  2:10  warning  'PageHeader' is defined but never used   @typescript-eslint/no-unused-vars
+  3:10  warning  'SectionCard' is defined but never used  @typescript-eslint/no-unused-vars
+  4:10  warning  'GlassCard' is defined but never used    @typescript-eslint/no-unused-vars
+  5:10  warning  'StatCard' is defined but never used     @typescript-eslint/no-unused-vars
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\app\(protected)\analytics\page.tsx
+  8:46  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\app\(protected)\analytics\page.tsx:8:46
+   6 |   const snapshot = await getCommandCenterSnapshot();
+   7 |   const activeUsers = snapshot.users.filter(
+>  8 |     (u) => new Date(u.lastSeenAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+     |                                              ^^^^^^^^^^ Cannot call impure function
+   9 |   ).length;
+  10 |
+  11 |   return (  react-hooks/purity
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\app\(protected)\incidents\page.tsx
+    2:10  warning  'PageHeader' is defined but never used                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+    3:10  warning  'SectionCard' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+    4:10  warning  'StatusPill' is defined but never used                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+    5:10  warning  'GlassCard' is defined but never used                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+    6:10  warning  'StatCard' is defined but never used                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+    9:10  warning  'formatRelativeTime' is defined but never used                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+   21:9   warning  'warnings' is assigned a value but never used                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+   24:9   warning  'openCount' is assigned a value but never used                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  148:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  166:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\app\(protected)\page.tsx
+  143:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  148:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  153:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\app\(protected)\support\page.tsx
+  122:44  warning  'index' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  134:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  189:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  249:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  335:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  397:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  404:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\app\(protected)\users\page.tsx
+  2:10  warning  'formatDateTime' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\app\layout.tsx
+  31:9  warning  Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\components\charts\analytics-components.tsx
+  2:21  warning  'StatCard' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\components\dashboard\dashboard-bento.tsx
+   3:10  warning  'StatCard' is defined but never used     @typescript-eslint/no-unused-vars
+   8:10  warning  'cn' is defined but never used           @typescript-eslint/no-unused-vars
+  41:3   warning  'stats' is defined but never used        @typescript-eslint/no-unused-vars
+  46:3   warning  'activeUsers' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\components\dashboard\examples.tsx
+  200:17  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\components\dashboard\examples.tsx:200:17
+  198 |             ? ("amber" as const)
+  199 |             : ("rose" as const),
+> 200 |       progress: Math.random() * 100,
+      |                 ^^^^^^^^^^^^^ Cannot call impure function
+  201 |     })),
+  202 |     apiStatuses: snapshot.systems.map((sys) => ({
+  203 |       name: sys.machineName,  react-hooks/purity
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\components\forms\incident-console.tsx
+    6:10  warning  'StatusPill' is defined but never used         @typescript-eslint/no-unused-vars
+   15:10  warning  'formatDateTime' is defined but never used     @typescript-eslint/no-unused-vars
+  116:12  warning  'handleNewIncident' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\components\pages\analytics-page-redesigned.tsx
+  29:3  warning  'isLoading' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\components\pages\users-page-redesigned.tsx
+  9:10  warning  'cn' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\components\shell\app-shell.tsx
+  21:8  warning  'Image' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\components\ui\api-status-card.tsx
+  3:10  warning  'StatCard' is defined but never used     @typescript-eslint/no-unused-vars
+  4:10  warning  'StatusBadge' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\gabri\Documents\projetos\CodeTrail\codetrail-command-center\src\components\ui\page-header.tsx
+  15:3  warning  'eyebrow' is defined but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 42 problems (2 errors, 40 warnings)
+

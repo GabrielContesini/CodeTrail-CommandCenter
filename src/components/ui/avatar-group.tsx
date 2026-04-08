@@ -1,5 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 interface AvatarItem {
   src: string;
@@ -51,11 +51,12 @@ export function AvatarGroup({
           )}
           title={avatar.name}
         >
-          <Image
+          <img
             src={avatar.src}
             alt={avatar.alt}
-            fill
-            className="object-cover"
+            className="h-full w-full object-cover"
+            loading="lazy"
+            referrerPolicy="no-referrer"
           />
         </div>
       ))}
